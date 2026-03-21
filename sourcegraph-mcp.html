@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sourcegraph MCP — Illuminate Your Codebase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ROOT & RESETS
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080B10;
+  --bg2: #0D1117;
+  --red: #FF3B5C;
+  --red2: #FF6B35;
+  --blue: #4FC3F7;
+  --green: #69FF9C;
+  --purple: #A78BFA;
+  --text: #E2E8F0;
+  --text-dim: #64748B;
+  --text-muted: #334155;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ═══════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════ */
+#cursor {
+  position: fixed;
+  width: 18px; height: 18px;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s;
+}
+#cursor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--red);
+  transform: rotate(45deg);
+  box-shadow: 0 0 8px var(--red), 0 0 20px rgba(255,59,92,0.3);
+}
+#cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 3px; height: 3px;
+  background: var(--red);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 6px var(--red);
+}
+.cursor-trail {
+  position: fixed;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  opacity: 0.6;
+  transition: opacity 0.4s;
+}
+
+/* ═══════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--red), 0 0 16px rgba(255,59,92,0.4);
+}
+
+/* ═══════════════════════════════════════════════
+   NEBULA BACKGROUND
+═══════════════════════════════════════════════ */
+#nebula {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.nebula-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: nebulaFloat 20s ease-in-out infinite;
+}
+.nebula-orb:nth-child(1) {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #FF3B5C 0%, transparent 70%);
+  top: -200px; left: -100px;
+  animation-delay: 0s;
+}
+.nebula-orb:nth-child(2) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #4FC3F7 0%, transparent 70%);
+  top: 30%; right: -100px;
+  animation-delay: -7s;
+}
+.nebula-orb:nth-child(3) {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, #A78BFA 0%, transparent 70%);
+  bottom: -200px; left: 30%;
+  animation-delay: -14s;
+}
+@keyframes nebulaFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════════════ */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION WIPE-IN
+═══════════════════════════════════════════════ */
+.wipe-in {
+  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  transition: clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wipe-in.visible {
+  clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0 100%);
+}
+
+/* ═══════════════════════════════════════════════
+   HERO — CANVAS SECTION
+═══════════════════════════════════════════════ */
+#hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#heroCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgba(255,59,92,0.3);
+  border-radius: 2px;
+  background: rgba(255,59,92,0.06);
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero-headline {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  min-height: 4.5em;
+}
+
+.hero-headline .cursor-blink {
+  display: inline-block;
+  width: 3px;
+  height: 0.9em;
+  background: var(--red);
+  margin-left: 3px;
+  vertical-align: middle;
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 2rem;
+  background: linear-gradient(135deg, var(--red), #C62A47);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 20px rgba(255,59,92,0.3);
+}
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.hero-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 30px rgba(255,59,92,0.5); }
+.hero-cta:hover::before { opacity: 1; }
+.hero-cta:active { transform: translateY(0); }
+
+.cta-arrow {
+  transition: transform 0.2s;
+}
+.hero-cta:hover .cta-arrow { transform: translateX(4px); }
+
+/* SCAN overlay */
+#scanOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+}
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), var(--blue), transparent);
+  box-shadow: 0 0 20px var(--red), 0 0 40px rgba(255,59,92,0.3);
+  top: -2px;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION 2 — TERMINAL COMPARISON
+═══════════════════════════════════════════════ */
+#compare {
+  padding: 8rem 2rem 6rem;
+  min-height: 100vh;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.section-sub {
+  font-size: 1rem;
+  color: var(--text-dim);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.compare-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* Preset questions */
+.preset-questions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.preset-btn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.45rem 1rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  border-radius: 3px;
+  cursor: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.preset-btn:hover, .preset-btn.active {
+  background: rgba(255,59,92,0.08);
+  border-color: rgba(255,59,92,0.4);
+  color: var(--text);
+  box-shadow: 0 0 10px rgba(255,59,92,0.15);
+}
+
+.terminals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .terminals-grid { grid-template-columns: 1fr; }
+}
+
+.terminal-window {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: #0D1117;
+  position: relative;
+  animation: gradBorder 4s linear infinite;
+}
+
+.terminal-window.without {
+  --c1: #FF3B5C; --c2: #FF6B35;
+}
+.terminal-window.with {
+  --c1: #69FF9C; --c2: #4FC3F7;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes gradBorder {
+  to { --angle: 360deg; }
+}
+
+.terminal-window::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9px;
+  background: conic-gradient(from var(--angle), var(--c1), var(--c2), var(--c1));
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  background: #161B22;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot.red { background: #FF5F56; }
+.dot.yellow { background: #FFBD2E; }
+.dot.green { background: #27C93F; }
+
+.terminal-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-left: 0.5rem;
+}
+
+.terminal-body {
+  padding: 1.25rem;
+  min-height: 380px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  position: relative;
+}
+
+.prompt-line {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prompt-sym { color: var(--red); }
+.terminal-window.with .prompt-sym { color: var(--green); }
+
+.question-text { color: #fff; }
+
+.response-area {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(255,255,255,0.08);
+}
+
+.mcp-log {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.3s ease;
+  color: var(--blue);
+  font-size: 0.7rem;
+}
+.mcp-log.fired {
+  opacity: 1;
+  transform: translateX(0);
+}
+.mcp-log .arrow { color: var(--green); }
+.mcp-log .fn { color: var(--purple); }
+.mcp-log .arg { color: #FFD700; }
+
+.response-text { color: var(--text); }
+.response-text .hallucinate {
+  background: rgba(255,59,92,0.2);
+  color: var(--red);
+  text-decoration: line-through wavy var(--red);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.response-text .exact {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Confidence meter */
+.confidence-bar {
+  margin-top: 1.25rem;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.confidence-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+.confidence-label .conf-pct { font-weight: 700; }
+.terminal-window.without .conf-pct { color: var(--red); }
+.terminal-window.with .conf-pct { color: var(--green); }
+
+.confidence-track {
+  height: 4px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.terminal-window.without .confidence-fill { background: linear-gradient(90deg, #FF3B5C, #FF6B35); width: 0%; }
+.terminal-window.with .confidence-fill { background: linear-gradient(90deg, #69FF9C, #4FC3F7); width: 0%; }
+
+/* ═══════════════════════════════════════════════
+   SECTION 3 — MCP ARCHITECTURE
+═══════════════════════════════════════════════ */
+#architecture {
+  padding: 8rem 2rem;
+  overflow: hidden;
+}
+
+.arch-diagram {
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 200px;
+}
+
+#archCanvas {
+  width: 100%;
+  height: 340px;
+  display: block;
+}
+
+.arch-nodes {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  perspective: 800px;
+  transition: transform 0.1s ease-out;
+}
+
+.arch-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: none;
+  z-index: 2;
+  position: relative;
+}
+
+.arch-node-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+  font-size: 1.6rem;
+}
+
+.arch-node:hover .arch-node-circle {
+  transform: scale(1.15) translateY(-4px);
+  box-shadow: 0 8px 30px rgba(255,59,92,0.3);
+  border-color: var(--red);
+}
+
+.arch-node-circle::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: conic-gradient(from var(--angle), rgba(255,59,92,0.6), transparent, rgba(79,195,247,0.6), transparent) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation: gradBorder 3s linear infinite;
+}
+
+.arch-node-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.arch-connector {
+  flex: 1;
+  height: 2px;
+  position: relative;
+  overflow: visible;
+  margin: 0 -0.5rem;
+  top: -18px;
+}
+
+.arch-connector svg {
+  width: 100%;
+  height: 30px;
+  overflow: visible;
+}
+
+.connector-line {
+  stroke: rgba(255,255,255,0.1);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 4 4;
+}
+
+.packet {
+  r: 4;
+  fill: var(--red);
+  filter: url(#glow);
+  opacity: 0;
+}
+
+/* Expandable info panel */
+.arch-info-panel {
+  position: absolute;
+  bottom: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  background: rgba(13,17,23,0.95);
+  border: 1px solid rgba(255,59,92,0.3);
+  border-radius: 8px;
+  padding: 1.25rem;
+  backdrop-filter: blur(20px);
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  transform: translateX(-50%) translateY(8px);
+}
+.arch-info-panel.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.arch-panel-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+}
+.arch-panel-body {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.arch-msg {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--green);
+  background: rgba(105,255,156,0.08);
+  border: 1px solid rgba(105,255,156,0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  margin: 0.15rem;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION 4 — CONTEXT LOOP ORBITAL
+═══════════════════════════════════════════════ */
+#context-loop {
+  padding: 8rem 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbital-wrapper {
+  position: relative;
+  width: 520px;
+  height: 520px;
+  margin: 0 auto;
+}
+
+#orbitalCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.orbital-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
+  width: 160px;
+}
+
+.orbital-center-stage {
+  font-size: 1.4rem;
+  margin-bottom: 0.3rem;
+}
+.orbital-center-title {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--red);
+  font-weight: 600;
+  transition: all 0.5s;
+}
+.orbital-center-desc {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-top: 0.3rem;
+  transition: all 0.5s;
+}
+
+.orbital-planet {
+  position: absolute;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  transition: all 0.3s;
+  background: #0D1117;
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 1.1rem;
+}
+
+.orbital-planet.active {
+  border-color: var(--red);
+  box-shadow: 0 0 20px rgba(255,59,92,0.4), 0 0 40px rgba(255,59,92,0.2);
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.orbital-planet-label {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  margin-top: 58px;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION 5 — CODE EXPLORER
+═══════════════════════════════════════════════ */
+#code-explorer {
+  padding: 8rem 2rem;
+}
+
+.explorer-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.code-window {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: #0D1117;
+}
+
+.code-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #161B22;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  gap: 0.5rem;
+}
+
+.code-tabs {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  margin-left: 0.75rem;
+}
+
+.code-tab {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.3rem 0.9rem;
+  color: var(--text-dim);
+  border: none;
+  background: transparent;
+  cursor: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  border-radius: 4px 4px 0 0;
+  white-space: nowrap;
+}
+.code-tab.active {
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+  border-bottom-color: var(--red);
+}
+.code-tab:hover:not(.active) {
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+}
+
+.copy-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(255,59,92,0.1);
+  border: 1px solid rgba(255,59,92,0.3);
+  color: var(--red);
+  border-radius: 3px;
+  cursor: none;
+  transition: all 0.2s;
+  margin-left: auto;
+  animation: copyPulse 3s ease-in-out infinite;
+}
+.copy-btn:hover {
+  background: rgba(255,59,92,0.2);
+  box-shadow: 0 0 10px rgba(255,59,92,0.3);
+}
+@keyframes copyPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,59,92,0); }
+  50% { box-shadow: 0 0 12px rgba(255,59,92,0.4); }
+}
+
+.code-content {
+  display: none;
+  padding: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+.code-content.active { display: block; }
+
+/* Syntax highlight */
+.tok-key { color: #FF7B72; }
+.tok-str { color: #A5D6FF; }
+.tok-val { color: #79C0FF; }
+.tok-bool { color: #FF9D00; }
+.tok-comment { color: #8B949E; font-style: italic; }
+.tok-bracket { color: var(--text-dim); }
+.tok-url { color: #69FF9C; text-decoration: underline; }
+.tok-num { color: #F0883E; }
+
+/* Agent walkthrough */
+.agent-walkthrough {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #0D1117;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.walkthrough-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.walkthrough-title::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.wt-line {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  padding: 0.25rem 0;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.4s ease;
+  line-height: 1.6;
+}
+.wt-line.show { opacity: 1; transform: translateY(0); }
+.wt-line .wt-time { color: var(--text-muted); margin-right: 0.75rem; }
+.wt-line .wt-tool { color: var(--purple); }
+.wt-line .wt-result { color: var(--blue); }
+.wt-line .wt-arrow { color: var(--green); }
+
+/* ═══════════════════════════════════════════════
+   SECTION 6 — USE CASES
+═══════════════════════════════════════════════ */
+#use-cases {
+  padding: 8rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.use-cases-inner {
+  padding: 0 2rem;
+}
+
+/* Ticker tape */
+.ticker-wrapper {
+  overflow: hidden;
+  padding: 1rem 0;
+  margin-bottom: 4rem;
+  position: relative;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker-wrapper::before, .ticker-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+}
+.ticker-wrapper::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+.ticker-wrapper::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
+
+.ticker-track {
+  display: flex;
+  gap: 0;
+  animation: tickerScroll 40s linear infinite;
+  width: max-content;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  cursor: none;
+  transition: color 0.2s;
+}
+.ticker-item:hover { color: var(--text); }
+.ticker-item .tick-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  box-shadow: 0 0 4px var(--red);
+}
+
+/* Use case cards */
+.use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.use-case-card {
+  padding: 1.75rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.use-case-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9px;
+  background: conic-gradient(from var(--angle), var(--red), transparent 30%, var(--blue) 60%, transparent 80%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.use-case-card:hover { transform: translateY(-4px); }
+.use-case-card:hover::before { opacity: 0.5; }
+
+.use-case-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+.use-case-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.use-case-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+.use-case-tag {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--red);
+  background: rgba(255,59,92,0.08);
+  border: 1px solid rgba(255,59,92,0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   STATS ROW
+═══════════════════════════════════════════════ */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  padding: 5rem 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, var(--text-dim));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER / CTA SECTION
+═══════════════════════════════════════════════ */
+#final-cta {
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#final-cta::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(255,59,92,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.final-title {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  line-height: 1.1;
+}
+
+.final-sub {
+  font-size: 1rem;
+  color: var(--text-dim);
+  max-width: 480px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.final-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: linear-gradient(135deg, var(--red), #C62A47);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: none;
+  cursor: none;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-shadow: 0 0 20px rgba(255,59,92,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(255,59,92,0.5); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border);
+  cursor: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-secondary:hover {
+  background: var(--glass);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════ */
+.gradient-text {
+  background: linear-gradient(135deg, #fff 0%, var(--red) 60%, var(--red2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(8, 11, 16, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+.nav-links a:hover { color: #fff; }
+
+.nav-cta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.4rem 1rem;
+  background: rgba(255,59,92,0.1);
+  border: 1px solid rgba(255,59,92,0.4);
+  color: var(--red);
+  border-radius: 3px;
+  cursor: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.nav-cta:hover { background: rgba(255,59,92,0.2); box-shadow: 0 0 12px rgba(255,59,92,0.3); }
+
+/* scroll progress */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), var(--red2), var(--blue));
+  z-index: 1001;
+  width: 0%;
+  transition: width 0.1s;
+  box-shadow: 0 0 8px var(--red);
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+
+<!-- Nebula BG -->
+<div id="nebula">
+  <div class="nebula-orb"></div>
+  <div class="nebula-orb"></div>
+  <div class="nebula-orb"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    Sourcegraph MCP
+  </div>
+  <ul class="nav-links">
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#context-loop">Context Loop</a></li>
+    <li><a href="#code-explorer">Setup</a></li>
+  </ul>
+  <a href="#final-cta" class="nav-cta">Get Started →</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section id="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div id="scanOverlay">
+    <div class="scan-line" id="scanLine"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Sourcegraph MCP</div>
+
+    <h1 class="hero-headline" id="heroHeadline">
+      <span id="typewriterText"></span><span class="cursor-blink" id="typeCursor"></span>
+    </h1>
+
+    <p class="hero-sub">
+      Your AI sees a fraction of your codebase. Sourcegraph MCP gives it total recall — 
+      every file, every reference, every relationship, in real time.
+    </p>
+
+    <button class="hero-cta" id="heroCta">
+      See What Your AI is Missing
+      <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2 — COMPARE
+═══════════════════════════════════════════════ -->
+<section id="compare" class="wipe-in">
+  <div class="compare-wrapper">
+    <div class="section-header">
+      <span class="section-tag">// The Difference</span>
+      <h2 class="section-title">Watch Your AI <span class="gradient-text">Transform</span></h2>
+      <p class="section-sub">Same question. Completely different answer quality. Pick a scenario and see it happen.</p>
+    </div>
+
+    <div class="preset-questions">
+      <button class="preset-btn active" data-q="0">Where is authentication handled?</button>
+      <button class="preset-btn" data-q="1">Where is the payment logic?</button>
+      <button class="preset-btn" data-q="2">How does the caching layer work?</button>
+      <button class="preset-btn" data-q="3">What pattern is used for error handling?</button>
+    </div>
+
+    <div class="terminals-grid">
+      <!-- LEFT: Without -->
+      <div class="terminal-window without">
+        <div class="terminal-titlebar">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+          <span class="terminal-title">AI Without Context</span>
+        </div>
+        <div class="terminal-body" id="leftTerminal">
+          <div class="prompt-line">
+            <span class="prompt-sym">❯</span>
+            <span class="question-text" id="leftQuestion"></span>
+          </div>
+          <div class="response-area">
+            <div class="response-text" id="leftResponse"></div>
+          </div>
+          <div class="confidence-bar">
+            <div class="confidence-label">
+              <span>Confidence</span>
+              <span class="conf-pct" id="leftPct">0%</span>
+            </div>
+            <div class="confidence-track">
+              <div class="confidence-fill" id="leftFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: With MCP -->
+      <div class="terminal-window with">
+        <div class="terminal-titlebar">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+          <span class="terminal-title">AI With Sourcegraph MCP</span>
+        </div>
+        <div class="terminal-body" id="rightTerminal">
+          <div class="prompt-line">
+            <span class="prompt-sym">❯</span>
+            <span class="question-text" id="rightQuestion"></span>
+          </div>
+          <div class="response-area">
+            <div id="mcpLogs"></div>
+            <div class="response-text" id="rightResponse"></div>
+          </div>
+          <div class="confidence-bar">
+            <div class="confidence-label">
+              <span>Confidence</span>
+              <span class="conf-pct" id="rightPct">0%</span>
+            </div>
+            <div class="confidence-track">
+              <div class="confidence-fill" id="rightFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     STATS
+═══════════════════════════════════════════════ -->
+<div class="stats-row wipe-in" id="statsRow">
+  <div class="stat-item">
+    <div class="stat-num" data-target="10">0</div>
+    <div class="stat-label">MCP Tools Available</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="94">0</div>
+    <div class="stat-label">% Accuracy Improvement</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="50">0</div>
+    <div class="stat-label">ms Average Response</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="100">0</div>
+    <div class="stat-label">% Codebase Coverage</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 3 — ARCHITECTURE
+═══════════════════════════════════════════════ -->
+<section id="architecture" class="wipe-in">
+  <div class="section-header">
+    <span class="section-tag">// How It Works</span>
+    <h2 class="section-title">The MCP <span class="gradient-text">Architecture</span></h2>
+    <p class="section-sub">A living data pipeline connecting your AI agent to every corner of your codebase. Click any node.</p>
+  </div>
+
+  <div class="arch-diagram" id="archDiagram">
+    <div class="arch-nodes" id="archNodes">
+      <div class="arch-node" data-info="agent">
+        <div class="arch-node-circle">🤖</div>
+        <span class="arch-node-label">AI Agent</span>
+      </div>
+      <div class="arch-connector">
+        <svg viewBox="0 0 120 30" preserveAspectRatio="none">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <line x1="0" y1="15" x2="120" y2="15" class="connector-line"/>
+          <circle class="packet" id="p1" cx="0" cy="15"/>
+        </svg>
+      </div>
+      <div class="arch-node" data-info="client">
+        <div class="arch-node-circle">⚡</div>
+        <span class="arch-node-label">MCP Client</span>
+      </div>
+      <div class="arch-connector">
+        <svg viewBox="0 0 120 30" preserveAspectRatio="none">
+          <line x1="0" y1="15" x2="120" y2="15" class="connector-line"/>
+          <circle class="packet" id="p2" cx="0" cy="15"/>
+        </svg>
+      </div>
+      <div class="arch-node" data-info="server">
+        <div class="arch-node-circle">🔌</div>
+        <span class="arch-node-label">MCP Server</span>
+      </div>
+      <div class="arch-connector">
+        <svg viewBox="0 0 120 30" preserveAspectRatio="none">
+          <line x1="0" y1="15" x2="120" y2="15" class="connector-line"/>
+          <circle class="packet" id="p3" cx="0" cy="15"/>
+        </svg>
+      </div>
+      <div class="arch-node" data-info="sourcegraph">
+        <div class="arch-node-circle">🔍</div>
+        <span class="arch-node-label">Sourcegraph</span>
+      </div>
+      <div class="arch-connector">
+        <svg viewBox="0 0 120 30" preserveAspectRatio="none">
+          <line x1="0" y1="15" x2="120" y2="15" class="connector-line"/>
+          <circle class="packet" id="p4" cx="0" cy="15"/>
+        </svg>
+      </div>
+      <div class="arch-node" data-info="codebase">
+        <div class="arch-node-circle">📦</div>
+        <span class="arch-node-label">Your Codebase</span>
+      </div>
+    </div>
+
+    <!-- Info panels -->
+    <div class="arch-info-panel" id="panel-agent" style="left: 10%">
+      <div class="arch-panel-title">AI Agent</div>
+      <div class="arch-panel-body">Claude, GPT-4, or any MCP-compatible AI. Issues tool calls to discover and retrieve code context dynamically.</div>
+    </div>
+    <div class="arch-info-panel" id="panel-client" style="left: 30%">
+      <div class="arch-panel-title">MCP Client</div>
+      <div class="arch-panel-body">Translates agent intents into MCP protocol messages. Sends: <span class="arch-msg">tools/list</span> <span class="arch-msg">tools/call</span> <span class="arch-msg">resources/read</span></div>
+    </div>
+    <div class="arch-info-panel" id="panel-server" style="left: 50%">
+      <div class="arch-panel-title">MCP Server</div>
+      <div class="arch-panel-body">Sourcegraph's MCP server implements all tool handlers. Routes requests to the appropriate Sourcegraph API endpoints.</div>
+    </div>
+    <div class="arch-info-panel" id="panel-sourcegraph" style="left: 70%">
+      <div class="arch-panel-title">Sourcegraph</div>
+      <div class="arch-panel-body">The code intelligence backbone. Indexes every repo, symbol, and reference. Serves semantic search, cross-repo navigation, and precise definitions.</div>
+    </div>
+    <div class="arch-info-panel" id="panel-codebase" style="left: 90%">
+      <div class="arch-panel-title">Your Codebase</div>
+      <div class="arch-panel-body">All repos, all files, all branches. Private or public. The full graph of your organization's code becomes queryable in milliseconds.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 4 — CONTEXT LOOP
+═══════════════════════════════════════════════ -->
+<section id="context-loop" class="wipe-in">
+  <div class="section-header">
+    <span class="section-tag">// The Flow</span>
+    <h2 class="section-title">The Context <span class="gradient-text">Loop</span></h2>
+    <p class="section-sub">Every great AI response follows this cycle. Sourcegraph MCP powers each stage.</p>
+  </div>
+
+  <div class="orbital-wrapper" id="orbitalWrapper">
+    <canvas id="orbitalCanvas"></canvas>
+    <div class="orbital-center">
+      <div class="orbital-center-stage" id="centerStage">🎯</div>
+      <div class="orbital-center-title" id="centerTitle">Context Loop</div>
+      <div class="orbital-center-desc" id="centerDesc">Hover a stage to explore</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 5 — CODE EXPLORER
+═══════════════════════════════════════════════ -->
+<section id="code-explorer" class="wipe-in">
+  <div class="section-header">
+    <span class="section-tag">// Quick Start</span>
+    <h2 class="section-title">Up in <span class="gradient-text">60 Seconds</span></h2>
+    <p class="section-sub">Add Sourcegraph MCP to your favorite AI environment with a few lines of config.</p>
+  </div>
+
+  <div class="explorer-wrapper">
+    <div class="code-window">
+      <div class="code-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="code-tabs">
+          <button class="code-tab active" data-tab="claude">claude_desktop_config.json</button>
+          <button class="code-tab" data-tab="cursor">cursor_mcp.json</button>
+          <button class="code-tab" data-tab="vscode">vscode_settings.json</button>
+        </div>
+        <button class="copy-btn" id="copyBtn">Copy</button>
+      </div>
+      <div class="code-content active" id="tab-claude">
+<span class="tok-bracket">{</span>
+  <span class="tok-key">"mcpServers"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+    <span class="tok-key">"sourcegraph"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+      <span class="tok-key">"command"</span><span class="tok-bracket">:</span> <span class="tok-str">"npx"</span><span class="tok-bracket">,</span>
+      <span class="tok-key">"args"</span><span class="tok-bracket">:</span> <span class="tok-bracket">[</span>
+        <span class="tok-str">"-y"</span><span class="tok-bracket">,</span>
+        <span class="tok-str">"@sourcegraph/mcp-server"</span>
+      <span class="tok-bracket">],</span>
+      <span class="tok-key">"env"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+        <span class="tok-key">"SRC_ENDPOINT"</span><span class="tok-bracket">:</span> <span class="tok-str">"<span class="tok-url">https://sourcegraph.example.com</span>"</span><span class="tok-bracket">,</span>
+        <span class="tok-key">"SRC_ACCESS_TOKEN"</span><span class="tok-bracket">:</span> <span class="tok-str">"sgp_xxxxxxxxxxxxxxxxxxxx"</span>
+      <span class="tok-bracket">}</span>
+    <span class="tok-bracket">}</span>
+  <span class="tok-bracket">}</span>
+<span class="tok-bracket">}</span>
+      </div>
+      <div class="code-content" id="tab-cursor">
+<span class="tok-bracket">{</span>
+  <span class="tok-comment">// .cursor/mcp.json</span>
+  <span class="tok-key">"mcpServers"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+    <span class="tok-key">"sourcegraph"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+      <span class="tok-key">"command"</span><span class="tok-bracket">:</span> <span class="tok-str">"npx"</span><span class="tok-bracket">,</span>
+      <span class="tok-key">"args"</span><span class="tok-bracket">:</span> <span class="tok-bracket">[</span><span class="tok-str">"-y"</span><span class="tok-bracket">,</span> <span class="tok-str">"@sourcegraph/mcp-server"</span><span class="tok-bracket">],</span>
+      <span class="tok-key">"env"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+        <span class="tok-key">"SRC_ENDPOINT"</span><span class="tok-bracket">:</span> <span class="tok-str">"<span class="tok-url">https://sourcegraph.example.com</span>"</span><span class="tok-bracket">,</span>
+        <span class="tok-key">"SRC_ACCESS_TOKEN"</span><span class="tok-bracket">:</span> <span class="tok-str">"${env:SOURCEGRAPH_TOKEN}"</span>
+      <span class="tok-bracket">}</span>
+    <span class="tok-bracket">}</span>
+  <span class="tok-bracket">}</span>
+<span class="tok-bracket">}</span>
+      </div>
+      <div class="code-content" id="tab-vscode">
+<span class="tok-bracket">{</span>
+  <span class="tok-comment">// settings.json — VS Code w/ Copilot Chat</span>
+  <span class="tok-key">"github.copilot.chat.mcpServers"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+    <span class="tok-key">"sourcegraph"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+      <span class="tok-key">"command"</span><span class="tok-bracket">:</span> <span class="tok-str">"npx"</span><span class="tok-bracket">,</span>
+      <span class="tok-key">"args"</span><span class="tok-bracket">:</span> <span class="tok-bracket">[</span><span class="tok-str">"-y"</span><span class="tok-bracket">,</span> <span class="tok-str">"@sourcegraph/mcp-server"</span><span class="tok-bracket">],</span>
+      <span class="tok-key">"env"</span><span class="tok-bracket">:</span> <span class="tok-bracket">{</span>
+        <span class="tok-key">"SRC_ENDPOINT"</span><span class="tok-bracket">:</span> <span class="tok-str">"<span class="tok-url">https://sourcegraph.example.com</span>"</span><span class="tok-bracket">,</span>
+        <span class="tok-key">"SRC_ACCESS_TOKEN"</span><span class="tok-bracket">:</span> <span class="tok-str">"${env:SRC_ACCESS_TOKEN}"</span>
+      <span class="tok-bracket">}</span>
+    <span class="tok-bracket">}</span>
+  <span class="tok-bracket">}</span>
+<span class="tok-bracket">}</span>
+      </div>
+    </div>
+
+    <!-- Agent walkthrough -->
+    <div class="agent-walkthrough">
+      <div class="walkthrough-title">Live agent session — watch MCP tools fire</div>
+      <div id="walkthroughLines"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 6 — USE CASES
+═══════════════════════════════════════════════ -->
+<section id="use-cases" class="wipe-in">
+  <div class="section-header use-cases-inner">
+    <span class="section-tag">// Real Workflows</span>
+    <h2 class="section-title">What You Can <span class="gradient-text">Do Now</span></h2>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrapper">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <div class="use-cases-inner">
+    <div class="use-case-grid">
+      <div class="use-case-card">
+        <div class="use-case-icon">🔎</div>
+        <div class="use-case-title">Semantic Code Search</div>
+        <div class="use-case-desc">Ask "where is rate limiting implemented?" and get exact file paths with line numbers, not guesses.</div>
+        <span class="use-case-tag">search_code()</span>
+      </div>
+      <div class="use-case-card">
+        <div class="use-case-icon">🕸️</div>
+        <div class="use-case-title">Cross-Repo Navigation</div>
+        <div class="use-case-desc">Follow a function call across 50 repositories. Understand the full blast radius of any change.</div>
+        <span class="use-case-tag">find_references()</span>
+      </div>
+      <div class="use-case-card">
+        <div class="use-case-icon">📖</div>
+        <div class="use-case-title">Precise File Retrieval</div>
+        <div class="use-case-desc">Pull exact file contents with a specific commit SHA. Ground your AI in reality, not hallucinations.</div>
+        <span class="use-case-tag">get_file()</span>
+      </div>
+      <div class="use-case-card">
+        <div class="use-case-icon">🧬</div>
+        <div class="use-case-title">Symbol Intelligence</div>
+        <div class="use-case-desc">Go-to-definition, find-all-implementations, type hierarchies — all available to your AI agent.</div>
+        <span class="use-case-tag">get_definition()</span>
+      </div>
+      <div class="use-case-card">
+        <div class="use-case-icon">🛡️</div>
+        <div class="use-case-title">Security Audits</div>
+        <div class="use-case-desc">Ask your agent to find all places a vulnerable pattern is used across your entire org's codebase.</div>
+        <span class="use-case-tag">search_code() + refs</span>
+      </div>
+      <div class="use-case-card">
+        <div class="use-case-icon">📚</div>
+        <div class="use-case-title">Onboarding Acceleration</div>
+        <div class="use-case-desc">New engineers ask the AI to explain the entire auth system. It reads every relevant file and explains precisely.</div>
+        <span class="use-case-tag">get_file() chain</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FINAL CTA
+═══════════════════════════════════════════════ -->
+<section id="final-cta" class="wipe-in">
+  <div class="final-title">Your codebase,<br><span class="gradient-text">fully illuminated.</span></div>
+  <p class="final-sub">Stop letting your AI fumble in the dark. Connect Sourcegraph MCP in 60 seconds and give it total recall.</p>
+  <div class="final-btns">
+    <a href="https://sourcegraph.com/docs/mcp" class="btn-primary">
+      Read the Docs
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <a href="https://github.com/sourcegraph/mcp-server" class="btn-secondary">
+      View on GitHub →
+    </a>
+  </div>
+</section>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CURSOR SYSTEM
+═══════════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+const trails = [];
+const MAX_TRAILS = 8;
+
+for (let i = 0; i < MAX_TRAILS; i++) {
+  const t = document.createElement('div');
+  t.className = 'cursor-trail';
+  document.body.appendChild(t);
+  trails.push({ el: t, x: 0, y: 0 });
+}
+
+let mouseX = 0, mouseY = 0;
+const trailPositions = Array(MAX_TRAILS).fill({ x: 0, y: 0 }).map(() => ({ x: 0, y: 0 }));
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+
+function animateTrails() {
+  trailPositions[0].x += (mouseX - trailPositions[0].x) * 0.35;
+  trailPositions[0].y += (mouseY - trailPositions[0].y) * 0.35;
+  for (let i = 1; i < MAX_TRAILS; i++) {
+    trailPositions[i].x += (trailPositions[i-1].x - trailPositions[i].x) * 0.4;
+    trailPositions[i].y += (trailPositions[i-1].y - trailPositions[i].y) * 0.4;
+  }
+  trails.forEach((t, i) => {
+    const opacity = (1 - i / MAX_TRAILS) * 0.5;
+    const scale = 1 - i / MAX_TRAILS * 0.6;
+    t.el.style.left = trailPositions[i].x + 'px';
+    t.el.style.top = trailPositions[i].y + 'px';
+    t.el.style.opacity = opacity;
+    t.el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  });
+  requestAnimationFrame(animateTrails);
+}
+animateTrails();
+
+/* ═══════════════════════════════════════════════
+   SCROLL PROGRESS
+═══════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+/* ═══════════════════════════════════════════════
+   HERO CANVAS — PARTICLE CODEBASE
+═══════════════════════════════════════════════ */
+const heroCanvas = document.getElementById('heroCanvas');
+const hctx = heroCanvas.getContext('2d');
+let nodes = [], codeTokens = [], illuminated = false, scanActive = false;
+
+function resizeHeroCanvas() {
+  heroCanvas.width = window.innerWidth;
+  heroCanvas.height = window.innerHeight;
+}
+resizeHeroCanvas();
+window.addEventListener('resize', resizeHeroCanvas);
+
+const CODE_TOKENS_LIST = [
+  'func AuthMiddleware', 'import useFetch', 'SELECT * FROM users',
+  'const router = express()', 'async function fetchData()', 'interface Repository',
+  'class UserService', 'export default App', 'type Config struct',
+  'def authenticate()', 'public void handleRequest()', 'const cache = new Map()',
+  'throw new APIError()', 'return jwt.sign()', 'useEffect(() => {',
+  'pg.query(sql)', 'redis.get(key)', 'ctx.WithTimeout(',
+];
+
+function initNodes() {
+  nodes = [];
+  const count = Math.min(180, Math.floor(window.innerWidth * window.innerHeight / 6000));
+  for (let i = 0; i < count; i++) {
+    nodes.push({
+      x: Math.random() * heroCanvas.width,
+      y: Math.random() * heroCanvas.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 2.5 + 0.8,
+      bright: Math.random() > 0.8,
+      brightness: Math.random() * 0.2 + 0.05,
+      targetBrightness: 0,
+      hue: Math.random() > 0.6 ? '#FF3B5C' : Math.random() > 0.5 ? '#4FC3F7' : '#A78BFA',
+      connections: [],
+    });
+  }
+
+  codeTokens = [];
+  for (let i = 0; i < 12; i++) {
+    codeTokens.push({
+      text: CODE_TOKENS_LIST[i % CODE_TOKENS_LIST.length],
+      x: Math.random() * heroCanvas.width,
+      y: Math.random() * heroCanvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.15 - 0.1,
+      alpha: Math.random() * 0.15 + 0.03,
+      size: Math.random() * 3 + 9,
+    });
+  }
+}
+initNodes();
+
+function drawHero() {
+  hctx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+
+  // Code tokens
+  codeTokens.forEach(t => {
+    hctx.font = `${t.size}px 'JetBrains Mono', monospace`;
+    hctx.fillStyle = `rgba(100, 116, 139, ${t.alpha * (illuminated ? 3 : 1)})`;
+    hctx.fillText(t.text, t.x, t.y);
+    t.x += t.vx;
+    t.y += t.vy;
+    if (t.x > heroCanvas.width + 200) t.x = -200;
+    if (t.x < -200) t.x = heroCanvas.width + 200;
+    if (t.y < -20) t.y = heroCanvas.height + 20;
+    if (t.y > heroCanvas.height + 20) t.y = -20;
+  });
+
+  // Connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const maxDist = illuminated ? 120 : 80;
+      if (dist < maxDist) {
+        const alpha = (1 - dist / maxDist) * (illuminated ? 0.4 : 0.08);
+        hctx.beginPath();
+        hctx.moveTo(nodes[i].x, nodes[i].y);
+        hctx.lineTo(nodes[j].x, nodes[j].y);
+        hctx.strokeStyle = illuminated
+          ? `rgba(255, 59, 92, ${alpha})`
+          : `rgba(100, 116, 139, ${alpha})`;
+        hctx.lineWidth = illuminated ? 0.8 : 0.4;
+        hctx.stroke();
+      }
+    }
+  }
+
+  // Nodes
+  nodes.forEach(n => {
+    if (illuminated) {
+      n.brightness = Math.min(1, n.brightness + 0.012);
+    }
+    hctx.beginPath();
+    hctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    const alpha = illuminated
+      ? Math.min(1, n.brightness * 2)
+      : (n.bright ? 0.6 : n.brightness);
+    if (illuminated) {
+      if (n.hue === '#FF3B5C') hctx.fillStyle = `rgba(255,59,92,${alpha})`;
+      else if (n.hue === '#4FC3F7') hctx.fillStyle = `rgba(79,195,247,${alpha})`;
+      else hctx.fillStyle = `rgba(167,139,250,${alpha})`;
+    } else {
+      hctx.fillStyle = `rgba(100, 116, 139, ${alpha})`;
+    }
+
+    if (illuminated && n.brightness > 0.5) {
+      hctx.shadowBlur = 12;
+      hctx.shadowColor = n.hue;
+    } else {
+      hctx.shadowBlur = 0;
+    }
+    hctx.fill();
+    hctx.shadowBlur = 0;
+
+    n.x += n.vx;
+    n.y += n.vy;
+    if (n.x < 0 || n.x > heroCanvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > heroCanvas.height) n.vy *= -1;
+  });
+
+  requestAnimationFrame(drawHero);
+}
+drawHero();
+
+/* ═══════════════════════════════════════════════
+   TYPEWRITER
+═══════════════════════════════════════════════ */
+const phrases = [
+  "Your AI is only as smart as its context.",
+  "Your codebase is a universe.",
+  "Stop guessing. Start knowing.",
+  "Illuminate every line. Every symbol.",
+];
+let phraseIdx = 0, charIdx = 0, deleting = false;
+const typeEl = document.getElementById('typewriterText');
+const typeCursorEl = document.getElementById('typeCursor');
+
+function typewrite() {
+  const current = phrases[phraseIdx];
+  if (!deleting) {
+    typeEl.textContent = current.slice(0, charIdx + 1);
+    charIdx++;
+    if (charIdx === current.length) {
+      deleting = true;
+      setTimeout(typewrite, 2200);
+      return;
+    }
+    setTimeout(typewrite, 55);
+  } else {
+    typeEl.textContent = current.slice(0, charIdx - 1);
+    charIdx--;
+    if (charIdx === 0) {
+      deleting = false;
+      phraseIdx = (phraseIdx + 1) % phrases.length;
+      setTimeout(typewrite, 300);
+      return;
+    }
+    setTimeout(typewrite, 25);
+  }
+}
+typewrite();
+
+/* ═══════════════════════════════════════════════
+   HERO CTA — SCAN EFFECT
+═══════════════════════════════════════════════ */
+document.getElementById('heroCta').addEventListener('click', () => {
+  if (scanActive) return;
+  scanActive = true;
+  const overlay = document.getElementById('scanOverlay');
+  const scanLine = document.getElementById('scanLine');
+  overlay.style.opacity = '1';
+  let progress = 0;
+
+  const scanAnim = () => {
+    progress += 1.2;
+    scanLine.style.top = (progress / 100 * window.innerHeight) + 'px';
+    if (progress < 100) {
+      requestAnimationFrame(scanAnim);
+    } else {
+      illuminated = true;
+      setTimeout(() => {
+        overlay.style.opacity = '0';
+        scanActive = false;
+        document.getElementById('compare').scrollIntoView({ behavior: 'smooth' });
+      }, 400);
+    }
+  };
+  requestAnimationFrame(scanAnim);
+});
+
+/* ═══════════════════════════════════════════════
+   INTERSECTION OBSERVER — WIPE IN
+═══════════════════════════════════════════════ */
+const wipeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.wipe-in').forEach(el => wipeObs.observe(el));
+
+/* ═══════════════════════════════════════════════
+   STAT COUNTERS
+═══════════════════════════════════════════════ */
+const statsObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      const suffix = el.dataset.target.includes('+') ? '+' : '';
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.round(current) + (target >= 100 ? '' : '');
+        if (current >= target) clearInterval(timer);
+      }, 16);
+    });
+    statsObs.unobserve(e.target);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stats-row').forEach(el => statsObs.observe(el));
+
+/* ═══════════════════════════════════════════════
+   TERMINAL COMPARISON
+═══════════════════════════════════════════════ */
+const scenarios = [
+  {
+    q: "Where is authentication handled?",
+    left: `I believe it might be in <span class="hallucinate">auth.js</span>... or possibly <span class="hallucinate">middleware.js</span>? You could try looking in <span class="hallucinate">utils/helpers.ts</span> or maybe the <span class="hallucinate">controllers/</span> folder. I'm not entirely sure without seeing the codebase structure.`,
+    leftConf: 15,
+    mcpCalls: [
+      { fn: 'search_code', arg: '"authentication"' },
+      { fn: 'find_references', arg: '"AuthMiddleware"' },
+      { fn: 'get_file', arg: '"pkg/auth/middleware.go"' },
+    ],
+    right: `Authentication is handled in <span class="exact">pkg/auth/middleware.go:47</span> via <span class="exact">AuthMiddleware</span>. It uses JWT with RS256. The token is validated against the JWKS endpoint at <span class="exact">https://auth.internal/jwks</span>. Refresh tokens are stored in Redis with a 7-day TTL at <span class="exact">pkg/auth/token_store.go:23</span>.`,
+    rightConf: 94,
+  },
+  {
+    q: "Where is the payment logic?",
+    left: `The payment logic is probably in <span class="hallucinate">payment.js</span> or <span class="hallucinate">checkout.ts</span>. There might be a <span class="hallucinate">PaymentService</span> class somewhere. Check the <span class="hallucinate">services/</span> or <span class="hallucinate">api/</span> folder.`,
+    leftConf: 12,
+    mcpCalls: [
+      { fn: 'search_code', arg: '"payment processing"' },
+      { fn: 'find_references', arg: '"ChargeCard"' },
+      { fn: 'get_file', arg: '"billing/stripe_handler.go"' },
+    ],
+    right: `Payment processing lives in <span class="exact">billing/stripe_handler.go</span>. The main entry point is <span class="exact">ChargeCard()</span> at line 89. It uses Stripe's <span class="exact">PaymentIntent</span> API with idempotency keys. Retry logic is in <span class="exact">billing/retry.go:34</span> with exponential backoff, max 3 attempts.`,
+    rightConf: 97,
+  },
+  {
+    q: "How does the caching layer work?",
+    left: `There's probably a Redis cache somewhere. Maybe a <span class="hallucinate">cache.js</span> file? The app might use <span class="hallucinate">node-cache</span> or possibly <span class="hallucinate">memcached</span>. I'd check the <span class="hallucinate">utils/</span> directory.`,
+    leftConf: 18,
+    mcpCalls: [
+      { fn: 'search_code', arg: '"cache.Set"' },
+      { fn: 'get_definition', arg: '"CacheManager"' },
+      { fn: 'get_file', arg: '"internal/cache/redis.go"' },
+    ],
+    right: `Caching is implemented in <span class="exact">internal/cache/redis.go</span> via <span class="exact">CacheManager</span>. It uses Redis Cluster with a 2-layer strategy: L1 in-process LRU (100ms TTL) and L2 Redis (5min TTL). Cache keys are namespaced by service. Invalidation uses pub/sub on channel <span class="exact">cache:invalidate</span>.`,
+    rightConf: 96,
+  },
+  {
+    q: "What pattern is used for error handling?",
+    left: `The app probably uses try/catch blocks or maybe a custom <span class="hallucinate">ErrorHandler</span> class. There might be some middleware for error handling. Check <span class="hallucinate">errors.js</span> or the <span class="hallucinate">middleware/</span> folder.`,
+    leftConf: 20,
+    mcpCalls: [
+      { fn: 'search_code', arg: '"errors.Wrap"' },
+      { fn: 'find_references', arg: '"AppError"' },
+      { fn: 'get_file', arg: '"pkg/errors/types.go"' },
+    ],
+    right: `This codebase uses Go's <span class="exact">errors.Wrap</span> pattern via <span class="exact">pkg/errors/types.go</span>. Errors are typed using <span class="exact">AppError</span> with codes (defined at line 12). HTTP handlers convert <span class="exact">AppError</span> to JSON responses via <span class="exact">middleware/error_handler.go:67</span>. Sentinel errors are in <span class="exact">pkg/errors/sentinel.go</span>.`,
+    rightConf: 92,
+  },
+];
+
+let currentScenario = 0;
+let terminalBusy = false;
+
+function runScenario(idx) {
+  if (terminalBusy) return;
+  terminalBusy = true;
+  currentScenario = idx;
+  const s = scenarios[idx];
+
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.q) === idx));
+
+  // Reset
+  const lq = document.getElementById('leftQuestion');
+  const lres = document.getElementById('leftResponse');
+  const rq = document.getElementById('rightQuestion');
+  const rres = document.getElementById('rightResponse');
+  const mcpLogs = document.getElementById('mcpLogs');
+  const leftFill = document.getElementById('leftFill');
+  const rightFill = document.getElementById('rightFill');
+  const leftPct = document.getElementById('leftPct');
+  const rightPct = document.getElementById('rightPct');
+
+  lq.textContent = '';
+  lres.innerHTML = '';
+  rq.textContent = '';
+  rres.innerHTML = '';
+  mcpLogs.innerHTML = '';
+  leftFill.style.width = '0%';
+  rightFill.style.width = '0%';
+  leftPct.textContent = '0%';
+  rightPct.textContent = '0%';
+
+  function typeText(el, text, delay = 0) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        let i = 0;
+        const interval = setInterval(() => {
+          el.textContent = text.slice(0, i + 1);
+          i++;
+          if (i >= text.length) { clearInterval(interval); resolve(); }
+        }, 22);
+      }, delay);
+    });
+  }
+
+  function typeHTML(el, html, delay = 0, speed = 18) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const stripped = html.replace(/<[^>]+>/g, '');
+        let i = 0;
+        const interval = setInterval(() => {
+          i += 2;
+          if (i >= stripped.length) {
+            el.innerHTML = html;
+            clearInterval(interval);
+            resolve();
+          } else {
+            el.textContent = stripped.slice(0, i) + '▌';
+          }
+        }, speed);
+      }, delay);
+    });
+  }
+
+  // Left side
+  typeText(lq, s.q, 200).then(() => {
+    setTimeout(() => {
+      typeHTML(lres, s.left, 100, 14).then(() => {
+        // animate confidence jitter
+        let conf = 0;
+        const target = s.leftConf;
+        const timer = setInterval(() => {
+          conf = Math.min(conf + 1, target);
+          const jitter = conf > 5 ? (Math.random() - 0.5) * 4 : 0;
+          const display = Math.max(0, Math.round(conf + jitter));
+          leftFill.style.width = display + '%';
+          leftPct.textContent = display + '%';
+          if (conf >= target) clearInterval(timer);
+        }, 40);
+      });
+    }, 400);
+  });
+
+  // Right side — MCP logs then response
+  typeText(rq, s.q, 200).then(() => {
+    let logDelay = 400;
+    s.mcpCalls.forEach((call, i) => {
+      setTimeout(() => {
+        const line = document.createElement('div');
+        line.className = 'mcp-log';
+        line.innerHTML = `<span class="arrow">→</span> <span class="fn">${call.fn}</span><span style="color:var(--text-dim)">(</span><span class="arg">${call.arg}</span><span style="color:var(--text-dim)">)</span>`;
+        mcpLogs.appendChild(line);
+        requestAnimationFrame(() => requestAnimationFrame(() => line.classList.add('fired')));
+
+        if (i === s.mcpCalls.length - 1) {
+          setTimeout(() => {
+            typeHTML(rres, s.right, 100, 14).then(() => {
+              let conf = 0;
+              const target = s.rightConf;
+              const timer = setInterval(() => {
+                conf = Math.min(conf + 2, target);
+                rightFill.style.width = conf + '%';
+                rightPct.textContent = conf + '%';
+                if (conf >= target) { clearInterval(timer); terminalBusy = false; }
+              }, 20);
+            });
+          }, 300);
+        }
+      }, logDelay + i * 500);
+    });
+  });
+}
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => runScenario(parseInt(btn.dataset.q)));
+});
+
+// Auto-start first scenario when section is visible
+const compareObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    setTimeout(() => runScenario(0), 300);
+    compareObs.disconnect();
+  }
+}, { threshold: 0.3 });
+compareObs.observe(document.getElementById('compare'));
+
+/* ═══════════════════════════════════════════════
+   ARCHITECTURE DIAGRAM — DATA PACKETS + PARALLAX
+═══════════════════════════════════════════════ */
+const archData = {
+  agent: { title: 'AI Agent', body: 'Claude, GPT-4, or any MCP-compatible AI. Issues tool calls to discover and retrieve code context dynamically.' },
+  client: { title: 'MCP Client', body: 'Translates agent intents into MCP protocol messages.' },
+  server: { title: 'MCP Server', body: "Sourcegraph's MCP server implements all tool handlers." },
+  sourcegraph: { title: 'Sourcegraph', body: 'The code intelligence backbone. Indexes every repo, symbol, and reference.' },
+  codebase: { title: 'Your Codebase', body: 'All repos, all files, all branches. The full graph of your organization\'s code.' },
+};
+
+// Packet animation
+function animatePacket(packetId, delay) {
+  const el = document.getElementById(packetId);
+  if (!el) return;
+  const svg = el.closest('svg');
+  const line = svg.querySelector('line');
+  const x1 = parseFloat(line.getAttribute('x1'));
+  const x2 = parseFloat(line.getAttribute('x2'));
+  const y = parseFloat(line.getAttribute('y1'));
+
+  function run() {
+    let progress = 0;
+    el.setAttribute('opacity', '1');
+
+    function step() {
+      progress += 1.5;
+      const x = x1 + (x2 - x1) * (progress / 100);
+      el.setAttribute('cx', x);
+      if (progress < 100) {
+        requestAnimationFrame(step);
+      } else {
+        el.setAttribute('opacity', '0');
+        setTimeout(run, 800 + Math.random() * 1200);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  setTimeout(run, delay);
+}
+
+const archObs = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting) return;
+  ['p1','p2','p3','p4'].forEach((id, i) => animatePacket(id, i * 400));
+  archObs.disconnect();
+}, { threshold: 0.4 });
+archObs.observe(document.getElementById('architecture'));
+
+// Node click — info panels
+let activePanel = null;
+document.querySelectorAll('.arch-node').forEach(node => {
+  node.addEventListener('click', () => {
+    const info = node.dataset.info;
+    const panelId = 'panel-' + info;
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+
+    if (activePanel && activePanel !== panel) {
+      activePanel.classList.remove('visible');
+    }
+    panel.classList.toggle('visible');
+    activePanel = panel.classList.contains('visible') ? panel : null;
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.arch-node') && activePanel) {
+    activePanel.classList.remove('visible');
+    activePanel = null;
+  }
+});
+
+// Parallax tilt
+const archDiagram = document.getElementById('archDiagram');
+archDiagram && archDiagram.addEventListener('mousemove', e => {
+  const rect = archDiagram.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const rx = (e.clientY - cy) / rect.height * 6;
+  const ry = (e.clientX - cx) / rect.width * -6;
+  document.getElementById('archNodes').style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+});
+archDiagram && archDiagram.addEventListener('mouseleave', () => {
+  document.getElementById('archNodes').style.transform = '';
+});
+
+/* ═══════════════════════════════════════════════
+   ORBITAL CANVAS
+═══════════════════════════════════════════════ */
+const orbCanvas = document.getElementById('orbitalCanvas');
+const octx = orbCanvas.getContext('2d');
+const ORBIT_STAGES = [
+  { name: 'Planning', emoji: '🗺️', desc: 'Agent determines what context it needs to answer the question.', color: '#FF3B5C' },
+  { name: 'Discovery', emoji: '🔍', desc: 'MCP tools search for relevant files, symbols, and references.', color: '#FF9D00' },
+  { name: 'Retrieval', emoji: '📥', desc: 'Exact file contents and definitions are fetched with precision.', color: '#4FC3F7' },
+  { name: 'Synthesis', emoji: '🧠', desc: 'The AI integrates all context to form a grounded, accurate answer.', color: '#A78BFA' },
+  { name: 'Action', emoji: '⚡', desc: 'The agent produces code, explanations, or next steps with confidence.', color: '#69FF9C' },
+];
+
+let orbAngle = 0, orbSpeed = 0, orbitalActive = false;
+let activeOrb = -1;
+
+function resizeOrbCanvas() {
+  const wrapper = document.getElementById('orbitalWrapper');
+  const size = Math.min(520, wrapper.clientWidth);
+  orbCanvas.width = size;
+  orbCanvas.height = size;
+}
+resizeOrbCanvas();
+
+function drawOrbital() {
+  const w = orbCanvas.width, h = orbCanvas.height;
+  const cx = w / 2, cy = h / 2;
+  const orbitR = w * 0.36;
+
+  octx.clearRect(0, 0, w, h);
+
+  // Orbit path
+  octx.beginPath();
+  octx.arc(cx, cy, orbitR, 0, Math.PI * 2);
+  octx.strokeStyle = 'rgba(255,59,92,0.15)';
+  octx.lineWidth = 1.5;
+  octx.setLineDash([4, 8]);
+  octx.stroke();
+  octx.setLineDash([]);
+
+  // Data stream dots along orbit
+  for (let i = 0; i < 8; i++) {
+    const a = orbAngle * 1.5 + (i / 8) * Math.PI * 2;
+    const sx = cx + Math.cos(a) * orbitR;
+    const sy = cy + Math.sin(a) * orbitR;
+    octx.beginPath();
+    octx.arc(sx, sy, 2, 0, Math.PI * 2);
+    octx.fillStyle = `rgba(255,59,92,${0.1 + Math.sin(a + orbAngle) * 0.1})`;
+    octx.fill();
+  }
+
+  // Center glow
+  const cgGrad = octx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+  cgGrad.addColorStop(0, 'rgba(255,59,92,0.08)');
+  cgGrad.addColorStop(1, 'transparent');
+  octx.fillStyle = cgGrad;
+  octx.beginPath();
+  octx.arc(cx, cy, 60, 0, Math.PI * 2);
+  octx.fill();
+
+  // Planets
+  ORBIT_STAGES.forEach((stage, i) => {
+    const a = orbAngle + (i / ORBIT_STAGES.length) * Math.PI * 2;
+    const px = cx + Math.cos(a) * orbitR;
+    const py = cy + Math.sin(a) * orbitR;
+    const isActive = i === activeOrb;
+
+    const r = isActive ? 30 : 22;
+    const grd = octx.createRadialGradient(px, py, 0, px, py, r);
+    grd.addColorStop(0, stage.color + (isActive ? 'cc' : '44'));
+    grd.addColorStop(1, 'transparent');
+
+    if (isActive) {
+      octx.shadowBlur = 24;
+      octx.shadowColor = stage.color;
+    }
+
+    octx.beginPath();
+    octx.arc(px, py, r, 0, Math.PI * 2);
+    octx.fillStyle = '#0D1117';
+    octx.fill();
+    octx.strokeStyle = stage.color + (isActive ? 'ff' : '66');
+    octx.lineWidth = isActive ? 2 : 1;
+    octx.stroke();
+    octx.shadowBlur = 0;
+
+    // Emoji
+    octx.font = `${isActive ? 16 : 13}px serif`;
+    octx.textAlign = 'center';
+    octx.textBaseline = 'middle';
+    octx.fillText(stage.emoji, px, py);
+
+    // Label outside
+    const labelR = orbitR + 44;
+    const lx = cx + Math.cos(a) * labelR;
+    const ly = cy + Math.sin(a) * labelR;
+    octx.font = `500 11px 'JetBrains Mono', monospace`;
+    octx.fillStyle = isActive ? stage.color : 'rgba(100,116,139,0.8)';
+    octx.fillText(stage.name, lx, ly);
+  });
+
+  if (orbitalActive) {
+    orbSpeed += (0.003 - orbSpeed) * 0.05;
+    orbAngle += orbSpeed;
+  }
+
+  // Update center info based on closest planet to top
+  const topA = -Math.PI / 2;
+  let closest = 0, minDist = Infinity;
+  ORBIT_STAGES.forEach((_, i) => {
+    const a = orbAngle + (i / ORBIT_STAGES.length) * Math.PI * 2;
+    const normalizedA = ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const normalizedTop = ((topA % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const diff = Math.abs(normalizedA - normalizedTop);
+    const dist = Math.min(diff, Math.PI * 2 - diff);
+    if (dist < minDist) { minDist = dist; closest = i; }
+  });
+
+  if (orbitalActive) {
+    const stage = ORBIT_STAGES[closest];
+    document.getElementById('centerStage').textContent = stage.emoji;
+    document.getElementById('centerTitle').textContent = stage.name;
+    document.getElementById('centerDesc').textContent = stage.desc;
+  }
+
+  requestAnimationFrame(drawOrbital);
+}
+drawOrbital();
+
+// Mouse interaction
+orbCanvas.addEventListener('mousemove', e => {
+  const rect = orbCanvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (orbCanvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (orbCanvas.height / rect.height);
+  const cx = orbCanvas.width / 2, cy = orbCanvas.height / 2;
+  const orbitR = orbCanvas.width * 0.36;
+
+  activeOrb = -1;
+  ORBIT_STAGES.forEach((stage, i) => {
+    const a = orbAngle + (i / ORBIT_STAGES.length) * Math.PI * 2;
+    const px = cx + Math.cos(a) * orbitR;
+    const py = cy + Math.sin(a) * orbitR;
+    const dist = Math.hypot(mx - px, my - py);
+    if (dist < 28) {
+      activeOrb = i;
+      document.getElementById('centerStage').textContent = stage.emoji;
+      document.getElementById('centerTitle').textContent = stage.name;
+      document.getElementById('centerDesc').textContent = stage.desc;
+    }
+  });
+});
+
+orbCanvas.addEventListener('mouseleave', () => { activeOrb = -1; });
+
+const orbObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) orbitalActive = true;
+  else { orbitalActive = false; orbSpeed = 0; }
+}, { threshold: 0.3 });
+orbObs.observe(document.getElementById('context-loop'));
+
+/* ═══════════════════════════════════════════════
+   CODE TABS
+═══════════════════════════════════════════════ */
+document.querySelectorAll('.code-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const activeContent = document.querySelector('.code-content.active');
+  const text = activeContent.innerText;
+  navigator.clipboard.writeText(text).catch(() => {});
+  const btn = document.getElementById('copyBtn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  btn.style.color = 'var(--green)';
+  btn.style.borderColor = 'rgba(105,255,156,0.4)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 1500);
+});
+
+/* ═══════════════════════════════════════════════
+   AGENT WALKTHROUGH
+═══════════════════════════════════════════════ */
+const walkthroughSteps = [
+  { time: '00:00:001', type: 'tool', text: '→ <span class="wt-tool">tools/list</span> — discovering available Sourcegraph tools' },
+  { time: '00:00:043', type: 'result', text: '<span class="wt-result">✓ 10 tools available: search_code, find_references, get_file, get_definition...</span>' },
+  { time: '00:00:044', type: 'tool', text: '→ <span class="wt-tool">search_code</span>(<span style="color:#FFD700">"AuthMiddleware"</span>)' },
+  { time: '00:00:089', type: 'result', text: '<span class="wt-result">✓ 3 results: pkg/auth/middleware.go:47, pkg/auth/middleware_test.go:12, cmd/server/main.go:34</span>' },
+  { time: '00:00:090', type: 'tool', text: '→ <span class="wt-tool">get_file</span>(<span style="color:#FFD700">"pkg/auth/middleware.go"</span>, lines: 40-80)' },
+  { time: '00:00:127', type: 'result', text: '<span class="wt-result">✓ Retrieved 40 lines — JWT validation with RS256, JWKS endpoint cached in-memory</span>' },
+  { time: '00:00:128', type: 'tool', text: '→ <span class="wt-tool">find_references</span>(<span style="color:#FFD700">"AuthMiddleware"</span>)' },
+  { time: '00:00:174', type: 'result', text: '<span class="wt-result">✓ 7 call sites across 4 files — all HTTP routes, admin routes excluded</span>' },
+  { time: '00:00:175', type: 'agent', text: '<span style="color:var(--green)">● Agent composing response with full context...</span>' },
+];
+
+const wtContainer = document.getElementById('walkthroughLines');
+walkthroughSteps.forEach(step => {
+  const line = document.createElement('div');
+  line.className = 'wt-line';
+  line.innerHTML = `<span class="wt-time">${step.time}</span>${step.text}`;
+  wtContainer.appendChild(line);
+});
+
+const wtObs = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting) return;
+  const lines = wtContainer.querySelectorAll('.wt-line');
+  lines.forEach((line, i) => {
+    setTimeout(() => line.classList.add('show'), i * 300);
+  });
+  wtObs.disconnect();
+}, { threshold: 0.4 });
+wtObs.observe(document.getElementById('code-explorer'));
+
+/* ═══════════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════════ */
+const tickerItems = [
+  'Semantic Code Search', 'Cross-Repo Navigation', 'Precise File Retrieval',
+  'Symbol Intelligence', 'Security Audits', 'Onboarding Acceleration',
+  'Refactoring Analysis', 'Dependency Mapping', 'API Surface Discovery',
+  'Dead Code Detection', 'Test Coverage Analysis', 'Architecture Review',
+  'Incident Response', 'Change Impact Analysis', 'Code Review Assistance',
+];
+
+const track = document.getElementById('tickerTrack');
+const allItems = [...tickerItems, ...tickerItems];
+allItems.forEach(item => {
+  const el = document.createElement('span');
+  el.className = 'ticker-item';
+  el.innerHTML = `<span class="tick-dot"></span>${item}`;
+  track.appendChild(el);
+});
+
+</script>
+</body>
+</html>
