@@ -114,7 +114,7 @@
 
     .mcp-brand {
       margin: 0;
-      font-size: clamp(3.8rem, 10vw, 7.5rem);
+      font-size: clamp(2.8rem, 7vw, 5rem);
       line-height: 0.9;
       letter-spacing: -0.07em;
       font-weight: 700;
@@ -130,10 +130,10 @@
       margin: 1.15rem 0 1rem;
       max-width: 12ch;
       font-family: var(--display);
-      font-size: clamp(2rem, 4vw, 3.45rem);
+      font-size: clamp(1.35rem, 2.3vw, 2rem);
       font-weight: 500;
-      line-height: 0.96;
-      letter-spacing: -0.05em;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
     }
 
     .mcp-hero .lede {
@@ -264,10 +264,10 @@
     .mcp-section-heading h2 {
       margin: 1rem 0 0.9rem;
       font-family: var(--display);
-      font-size: clamp(2.1rem, 4vw, 3.8rem);
+      font-size: clamp(1.35rem, 2.3vw, 2rem);
       font-weight: 500;
-      line-height: 0.96;
-      letter-spacing: -0.05em;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
     }
 
     .mcp-comparison {
@@ -418,9 +418,11 @@
 
     .mcp-rule-copy h3 {
       margin: 0;
-      font-size: clamp(1.45rem, 2.4vw, 2.35rem);
-      line-height: 1.04;
-      letter-spacing: -0.04em;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.5;
+      letter-spacing: 0;
     }
 
     .mcp-rule-copy ul {
@@ -752,12 +754,44 @@
   <div class="site-utility">
     <nav class="utility-group" aria-label="Primary">
       <a class="utility-link utility-link-brand" href="./index.html">
-        <span class="brand-text">Context</span>
+        <span class="brand-text">Context Engine</span>
       </a>
       <a class="utility-link" href="./context-problem.html">Software Factory</a>
       <a class="utility-link" href="./mcp-guide.html" aria-current="page">Sourcegraph MCP</a>
     </nav>
   </div>
+
+  <aside class="chapter-rail" aria-label="Page chapters">
+    <span class="chapter-kicker">Chapters</span>
+    <a class="chapter-link is-active" href="#why-it-changes-the-ask" data-chapter-target="why-it-changes-the-ask" aria-current="location">
+      <span class="chapter-dot" aria-hidden="true"></span>
+      <span class="chapter-copy">
+        <span class="chapter-index">01</span>
+        <span class="chapter-title">Why It Matters</span>
+      </span>
+    </a>
+    <a class="chapter-link" href="#tool-surface" data-chapter-target="tool-surface">
+      <span class="chapter-dot" aria-hidden="true"></span>
+      <span class="chapter-copy">
+        <span class="chapter-index">02</span>
+        <span class="chapter-title">Tool Surface</span>
+      </span>
+    </a>
+    <a class="chapter-link" href="#prompt-rules" data-chapter-target="prompt-rules">
+      <span class="chapter-dot" aria-hidden="true"></span>
+      <span class="chapter-copy">
+        <span class="chapter-index">03</span>
+        <span class="chapter-title">Prompt Rules</span>
+      </span>
+    </a>
+    <a class="chapter-link" href="#investigation-loop" data-chapter-target="investigation-loop">
+      <span class="chapter-dot" aria-hidden="true"></span>
+      <span class="chapter-copy">
+        <span class="chapter-index">04</span>
+        <span class="chapter-title">Investigation</span>
+      </span>
+    </a>
+  </aside>
 
   <main class="mcp-guide-page">
     <section class="mcp-hero">
@@ -832,7 +866,7 @@
           <div class="mcp-kicker">Tool Surface</div>
           <h2>Everything the agent can reach through Sourcegraph MCP.</h2>
           <p class="lede">
-            These are the tools available via MCP here. The page teaches what each tool is for instead of drowning the reader in protocol trivia.
+            These are the tools available via MCP here. The section below outlines what each tool is for:
           </p>
         </div>
 

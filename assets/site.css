@@ -2227,6 +2227,7 @@ section[id] {
   padding: 0 0 0.5rem;
   border: 0;
   background: transparent;
+  color: var(--text);
   text-align: left;
   cursor: pointer;
 }
@@ -2258,7 +2259,7 @@ section[id] {
 .protocol-node-copy {
   display: block;
   margin-top: 0.25rem;
-  color: var(--text-soft);
+  color: var(--text-dim);
   font-family: var(--mono);
   font-size: 0.75rem;
 }
@@ -2619,7 +2620,7 @@ section[id] {
   margin-top: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  text-align: center;
+  text-align: left;
 }
 
 /* ── Loop Compare ───────────────────────────────────── */

@@ -681,6 +681,7 @@
 
       await Promise.all([
         typeSegments(leftResponse, scenario.without.segments, abort),
+        typeSegments(rightResponse, scenario.with.segments, abort),
         (async () => {
           for (const log of scenario.with.logs) {
             if (abort()) return;
@@ -694,8 +695,6 @@
         })()
       ]);
 
-      if (abort()) return;
-      await typeSegments(rightResponse, scenario.with.segments, abort);
       if (localToken !== token) return;
       leftValue.textContent = `${scenario.without.confidence}%`;
       rightValue.textContent = `${scenario.with.confidence}%`;
