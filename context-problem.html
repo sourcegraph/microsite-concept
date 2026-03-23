@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Software Factory Is Here | Context Problem Deep Dive</title>
+  <meta name="description" content="An editorial microsite page on why background coding agents are arriving fast, why context is still the missing production input, and how to evaluate retrieval quality in practice.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffe0a3'/%3E%3Cstop offset='100%25' stop-color='%2369d9d0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='%23040506'/%3E%3Ccircle cx='32' cy='32' r='16' fill='url(%23g)'/%3E%3Ccircle cx='27' cy='26' r='5' fill='white' fill-opacity='.9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://cdn.prod.website-files.com" crossorigin>
+  <link rel="stylesheet" href="./assets/site.css">
+</head>
+<body>
+  <div class="page-progress" aria-hidden="true"></div>
+
+  <div class="site-utility">
+    <nav class="utility-group" aria-label="Primary">
+      <a class="utility-link utility-link-brand" href="./index.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Context Engine</span>
+      </a>
+      <a class="utility-link" href="./context-problem.html" aria-current="page">Software Factory</a>
+      <a class="utility-link" href="./mcp-guide.html">Sourcegraph Guide</a>
+    </nav>
+  </div>
+
+  <main>
+    <section class="page-hero context-hero">
+      <div class="container context-hero-layout">
+        <div class="context-hero-copy reveal">
+          <span class="eyebrow">Software Factory</span>
+          <h1 class="section-title">The factory is here. <span class="gradient-word">Context</span> is still the missing production input.</h1>
+          <p class="lede">
+            Background coding agents are no longer hypothetical. Stripe, Spotify, Ramp, and Uber are already running agent systems that plan, code, test, and open pull requests at scale. The hard part is no longer proving that an agent can execute. The hard part is getting the right context into the loop before it acts.
+          </p>
+        </div>
+
+        <div class="context-hero-plane reveal" aria-hidden="true">
+          <div class="context-hero-glow"></div>
+          <div class="context-hero-terminal">
+            <div class="factory-scene">
+              <div class="factory-scene-header">
+                <span class="factory-scene-kicker">Missing Correct Context</span>
+              </div>
+
+              <div class="factory-floor">
+                <div class="factory-belt"></div>
+
+                <div class="factory-station factory-station-intake">
+                  <span class="station-step">01</span>
+                </div>
+
+                <div class="factory-station factory-station-context">
+                  <span class="station-step">02</span>
+                  <span class="factory-alarm"></span>
+                  <div class="factory-smoke">
+                    <span class="factory-smoke-plume plume-a"></span>
+                    <span class="factory-smoke-plume plume-b"></span>
+                    <span class="factory-smoke-plume plume-c"></span>
+                  </div>
+                </div>
+
+                <div class="factory-station factory-station-agent">
+                  <span class="station-step">03</span>
+                </div>
+
+                <div class="factory-station factory-station-output">
+                  <span class="station-step">04</span>
+                </div>
+
+                <span class="factory-batch batch-a"></span>
+                <span class="factory-batch batch-b"></span>
+                <span class="factory-batch batch-c"></span>
+
+                <div class="factory-failure-rail"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-compact" id="factory-signal">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="eyebrow">Market Signal</span>
+          <h2 class="section-title tight">The software factory is already being built in public.</h2>
+        </div>
+
+        <div class="editorial-split reveal">
+          <div class="editorial-copy">
+            <p class="lede">
+              The article is strongest when it stops treating agents as a future abstraction and treats them as infrastructure. Serious teams are building factory systems: queues, sandboxes, review loops, observability hooks, and autonomous agents that work without a human shepherding every step.
+            </p>
+            <p class="lede">
+              But those engineering writeups all converge on the same lesson. Execution is not the main bottleneck anymore. Context is. The difference between a flashy demo and a mergeable output is whether the agent can see enough of the real system before it decides what to do.
+            </p>
+          </div>
+
+          <div class="editorial-rail">
+            <article class="editorial-point">
+              <span class="stack-number">01</span>
+              <div>
+                <h3>Stripe</h3>
+                <p>Minions reportedly merge more than 1,300 AI-generated pull requests a week, and the system prehydrates tickets, docs, and Sourcegraph results before the model loop starts.</p>
+              </div>
+            </article>
+            <article class="editorial-point">
+              <span class="stack-number">02</span>
+              <div>
+                <h3>Spotify</h3>
+                <p>The article highlights Spotify’s context-engineering writeup because it shows what breaks first: manual file loading, brittle grep-heavy prompting, and agents that lose the thread when context handling is weak.</p>
+              </div>
+            </article>
+            <article class="editorial-point">
+              <span class="stack-number">03</span>
+              <div>
+                <h3>Ramp</h3>
+                <p>The background agent matters because it has the same operational surface a human engineer would use: observability, browser access, flags, queues, and production-adjacent signals.</p>
+              </div>
+            </article>
+            <article class="editorial-point">
+              <span class="stack-number">04</span>
+              <div>
+                <h3>Uber</h3>
+                <p>Uber treats source code, docs, Slack, and Jira as layered context sources, which reinforces the article’s larger point: context has to become a platform component, not a prompt afterthought.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-header centered reveal">
+          <span class="eyebrow">Rediscovery</span>
+          <h2 class="section-title">Every serious agent team keeps rediscovering the same failure mode.</h2>
+          <p class="lede">
+            The article argues that context gets underestimated because it is invisible when it works and quietly damaging when it does not. That makes it easy to underinvest in the exact layer that determines whether a factory scales.
+          </p>
+        </div>
+
+        <div class="evaluation-track reveal">
+          <article class="evaluation-step">
+            <span class="evaluation-index">01</span>
+            <div>
+              <h3>The failure is usually not “the model is weak.”</h3>
+              <p>The recurring problem is that the agent cannot find the right definitions, callers, history, conventions, or downstream dependencies in time.</p>
+            </div>
+          </article>
+          <article class="evaluation-step">
+            <span class="evaluation-index">02</span>
+            <div>
+              <h3>Prompting humans to hand-carry context does not scale.</h3>
+              <p>If users have to guess the right grep commands or manually paste the relevant files, the factory depends on a human preprocessor, not a reliable context system.</p>
+            </div>
+          </article>
+          <article class="evaluation-step">
+            <span class="evaluation-index">03</span>
+            <div>
+              <h3>Bad retrieval fails quietly.</h3>
+              <p>Too much context wastes reasoning budget. Too little context produces plausible output that feels credible but misses the actual implementation and blast radius.</p>
+            </div>
+          </article>
+          <article class="evaluation-step">
+            <span class="evaluation-index">04</span>
+            <div>
+              <h3>Most benchmarks barely test this layer.</h3>
+              <p>Self-contained coding tasks hide the real retrieval problem. Cross-repository, multi-service work is where weak context surfaces are exposed.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-compact">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="eyebrow">Context Hierarchy</span>
+          <h2 class="section-title tight">A software factory needs more than code access.</h2>
+        </div>
+
+        <div class="stack-grid reveal">
+          <div class="panel page-side-panel">
+            <span class="eyebrow">Why Factories Stall</span>
+            <p class="lede">
+              The article’s most useful framing is that context is not one thing. It is a layered production input. Code, runtime state, and team knowledge each answer a different class of question, and missing any one of them can break the loop.
+            </p>
+            <ul class="mini-list">
+              <li>Codebase context answers what exists, where it lives, and what depends on it.</li>
+              <li>Operational context answers what the system is doing right now and where it is failing.</li>
+              <li>Organisational context answers what the team already decided, owns, and expects.</li>
+            </ul>
+          </div>
+
+          <div class="stack-list">
+            <article class="stack-card layer-1">
+              <span class="stack-number">01</span>
+              <h3>Codebase Context</h3>
+              <p>Definitions, references, symbol search, semantic diffs, historical changes, and cross-repository dependency understanding. This is the layer the article connects directly to Sourcegraph.</p>
+            </article>
+            <article class="stack-card layer-2">
+              <span class="stack-number">02</span>
+              <h3>Operational Context</h3>
+              <p>Errors, screenshots, feature flags, queues, deploy state, and observability. This is what lets an agent debug the live system instead of just editing static files.</p>
+            </article>
+            <article class="stack-card layer-3">
+              <span class="stack-number">03</span>
+              <h3>Organisational Context</h3>
+              <p>Jira tickets, Slack threads, ADRs, docs, and ownership rules. This is what makes the resulting code fit the team instead of merely compiling.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="eyebrow">Design Insight</span>
+          <h2 class="section-title">What Stripe gets right is not just tooling. It is sequencing.</h2>
+        </div>
+
+        <div class="page-hero-grid reveal">
+          <div class="editorial-copy">
+            <p class="lede">
+              One of the sharpest points in the piece is that context should be assembled before the model wakes up. That is a stronger design than asking the agent to wander through the codebase, discover what matters, and manage its own context budget in the same loop.
+            </p>
+            <p class="lede">
+              The article uses Stripe as the clearest example: deterministic orchestration gathers links, tickets, docs, and code intelligence up front. Sourcegraph matters in that design because it gives the system semantically grounded answers about symbols, references, and cross-repository scope, not just raw file bytes.
+            </p>
+            <a class="text-link" href="./mcp-guide.html">
+              Open the Sourcegraph MCP guide
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </a>
+          </div>
+
+          <div class="guide-panel">
+            <span class="eyebrow">Prehydration Flow</span>
+            <div class="guide-steps">
+              <div class="guide-step">
+                <span class="stack-number">01</span>
+                <div>
+                  <strong>Read the task envelope</strong>
+                  <p>Parse links, referenced tickets, repo names, service names, and the specific problem statement before any model call.</p>
+                </div>
+              </div>
+              <div class="guide-step">
+                <span class="stack-number">02</span>
+                <div>
+                  <strong>Resolve non-code context</strong>
+                  <p>Pull Jira, docs, prior discussions, and the operational clues that tell the agent what kind of change it is being asked to make.</p>
+                </div>
+              </div>
+              <div class="guide-step">
+                <span class="stack-number">03</span>
+                <div>
+                  <strong>Resolve codebase context</strong>
+                  <p>Use semantic search and code intelligence to identify the canonical implementation, adjacent patterns, and downstream consumers.</p>
+                </div>
+              </div>
+              <div class="guide-step">
+                <span class="stack-number">04</span>
+                <div>
+                  <strong>Hand the model a narrowed workspace</strong>
+                  <p>The model begins from a ranked working set instead of a blank prompt plus a giant filesystem.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-compact" id="evaluation">
+      <div class="container">
+        <div class="section-header centered reveal">
+          <span class="eyebrow">Evaluation Lens</span>
+          <h2 class="section-title">The right question is whether the agent retrieves the right context when the diff is no longer self-contained.</h2>
+          <p class="lede">
+            This is the practical test the article keeps returning to. Do not ask only whether the agent can write plausible code. Ask whether it can discover the right evidence when complexity moves outside the currently open files.
+          </p>
+        </div>
+
+        <div class="question-grid reveal">
+          <article class="question-card">
+            <h3>Can it find the canonical implementation?</h3>
+            <p>If a symbol is implemented in a shared service or hidden behind an interface, the agent should still land on the real source of truth instead of a nearby lookalike.</p>
+            <p class="answer">Good retrieval reduces exploration cost before the model spends tokens reasoning.</p>
+          </article>
+          <article class="question-card">
+            <h3>Can it trace blast radius across repositories?</h3>
+            <p>The agent should know who calls the thing being changed, which consumers are downstream, and where the migration risk actually sits.</p>
+            <p class="answer">This is where file access alone stops being enough.</p>
+          </article>
+          <article class="question-card">
+            <h3>Can it bring in history and conventions without flooding the window?</h3>
+            <p>Retrieval quality is precision, not volume. The system should surface the few artifacts that explain prior intent, ownership, and the existing team pattern.</p>
+            <p class="answer">Too much context is another form of failure.</p>
+          </article>
+          <article class="question-card">
+            <h3>Can it explain the answer with evidence?</h3>
+            <p>A trustworthy output points back to paths, symbols, references, or history. It should feel inspectable, not magical.</p>
+            <p class="answer">The reviewer should be able to verify how the agent knew what it knew.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section footer-cta">
+      <div class="container">
+        <div class="cta-panel panel reveal">
+          <span class="eyebrow">Next Step</span>
+          <h2 class="section-title">If context is the constraint, the next step is wiring retrieval into the agent loop on purpose.</h2>
+          <p class="lede">
+            The Sourcegraph MCP guide covers the protocol surface, setup shape, and the concrete retrieval tools that let an agent work from codebase evidence instead of guesswork.
+          </p>
+          <div class="actions actions-center">
+            <a class="btn" href="./mcp-guide.html">Open the Sourcegraph MCP guide</a>
+            <a class="ghost-btn" href="./index.html">Return to the landing page</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./assets/site.js"></script>
+</body>
+</html>

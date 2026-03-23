@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sourcegraph MCP Guide | Connect Agents to Real Codebase Context</title>
+  <meta name="description" content="A practical guide to using Sourcegraph as an MCP server: endpoints, host configuration, authentication, tool calling, and the core Sourcegraph capabilities available to AI coding agents.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffe0a3'/%3E%3Cstop offset='100%25' stop-color='%2369d9d0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='%23040506'/%3E%3Ccircle cx='32' cy='32' r='16' fill='url(%23g)'/%3E%3Ccircle cx='27' cy='26' r='5' fill='white' fill-opacity='.9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://cdn.prod.website-files.com" crossorigin>
+  <link rel="stylesheet" href="./assets/site.css">
+</head>
+<body>
+  <div class="page-progress" aria-hidden="true"></div>
+  <div class="site-utility">
+    <nav class="utility-group" aria-label="Primary">
+      <a class="utility-link utility-link-brand" href="./index.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Context Engine</span>
+      </a>
+      <a class="utility-link" href="./context-problem.html">Software Factory</a>
+      <a class="utility-link" href="./mcp-guide.html" aria-current="page">Sourcegraph Guide</a>
+    </nav>
+  </div>
+
+    <main>
+      <section class="page-hero">
+        <div class="container page-hero-grid">
+          <div class="reveal">
+            <span class="eyebrow">Sourcegraph MCP Guide</span>
+            <h1 class="section-title">Connect your agent to <span class="gradient-word">real codebase context</span> instead of local guesswork.</h1>
+            <p class="lede">
+              Sourcegraph exposes code search and code intelligence as a Model Context Protocol server. That means an MCP-compatible host can search, read, navigate, inspect history, and run Deep Search against your codebase without stuffing the entire repo into the prompt.
+            </p>
+            <div class="actions">
+              <a class="btn" href="https://sourcegraph.com/docs/api/mcp">Sourcegraph MCP docs</a>
+              <a class="ghost-btn" href="#sourcegraph-in-practice">See the implementation section</a>
+            </div>
+          </div>
+
+          <article class="page-side-panel panel reveal">
+            <span class="eyebrow">Quick Start</span>
+            <h3 style="margin: 1rem 0 0.8rem;">Two endpoint patterns</h3>
+            <ul class="mini-list">
+              <li><strong>Public open source:</strong> use <code>https://sourcegraph.com/.api/mcp</code> for repositories indexed on Sourcegraph.com search.</li>
+              <li><strong>Private code:</strong> use <code>https://your-sourcegraph-instance.com/.api/mcp</code> for your own instance.</li>
+              <li><strong>Authentication:</strong> Sourcegraph supports OAuth-capable clients and access-token headers.</li>
+              <li><strong>Deep Search only:</strong> use the dedicated <code>/.api/mcp/deepsearch</code> endpoint when you want that specialized tool surface.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section compact" id="sourcegraph-in-practice">
+        <div class="container">
+          <div class="guide-grid">
+            <article class="guide-panel reveal">
+              <span class="eyebrow">How Tool Calling Works</span>
+              <h2 class="section-title" style="font-size: clamp(1.9rem, 4vw, 3.2rem);">Sourcegraph is the retrieval plane inside the agent loop.</h2>
+              <div class="guide-steps">
+                <div class="guide-step">
+                  <span class="stack-number">1</span>
+                  <div>
+                    <strong>Initialize the connection</strong>
+                    <p>The host creates an MCP client connection, negotiates capabilities with the Sourcegraph MCP server, and learns which tools are available.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="stack-number">2</span>
+                  <div>
+                    <strong>List tools before acting</strong>
+                    <p>The agent can discover search, navigation, file, history, and Deep Search tools explicitly instead of assuming hidden capabilities.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="stack-number">3</span>
+                  <div>
+                    <strong>Call only the tools it needs</strong>
+                    <p>The agent can run repo discovery, keyword and semantic search, file reads, symbol navigation, history lookups, revision comparison, contributor discovery, and Deep Search as the task demands.</p>
+                  </div>
+                </div>
+                <div class="guide-step">
+                  <span class="stack-number">4</span>
+                  <div>
+                    <strong>Bring the evidence back into the reasoning window</strong>
+                    <p>Only the retrieved context enters the model’s working memory. That keeps the prompt tight and the evidence relevant.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="guide-panel reveal">
+              <span class="eyebrow">JSON-RPC Shape</span>
+              <h3 style="margin: 1rem 0 0.8rem;">Representative tool call</h3>
+              <div class="code-frame">
+                <div class="code-header">
+                  <strong>tools/call</strong>
+                  <span>MCP request shape</span>
+                </div>
+                <pre class="code-block"><code>{
+  <span class="key">"jsonrpc"</span>: <span class="string">"2.0"</span>,
+  <span class="key">"id"</span>: <span class="value">7</span>,
+  <span class="key">"method"</span>: <span class="string">"tools/call"</span>,
+  <span class="key">"params"</span>: {
+    <span class="key">"name"</span>: <span class="string">"find_references"</span>,
+    <span class="key">"arguments"</span>: {
+      <span class="key">"repo"</span>: <span class="string">"github.com/acme/platform"</span>,
+      <span class="key">"path"</span>: <span class="string">"pkg/auth/middleware.go"</span>,
+      <span class="key">"symbol"</span>: <span class="string">"AuthMiddleware"</span>
+    }
+  }
+}</code></pre>
+              </div>
+              <p class="footnote" style="margin-top: 1rem;">
+                The important architectural point is not the request syntax. It is that the agent can discover and call the capability at the moment it realizes the context is missing.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="eyebrow">Client Configs</span>
+            <h2 class="section-title">Host setup patterns for common MCP-compatible tools.</h2>
+            <p class="lede">
+              Sourcegraph’s current integrations and MCP docs show direct support for multiple clients. For hosts that only accept stdio MCP servers, use a remote bridge like <code>mcp-remote</code>.
+            </p>
+          </div>
+
+          <article class="terminal-shell config-panel reveal" data-tab-group>
+            <div class="config-topbar">
+              <div class="config-tab-row">
+                <button class="config-tab is-active" type="button" data-tab-target="claude-desktop">Claude Desktop</button>
+                <button class="config-tab" type="button" data-tab-target="claude-code">Claude Code</button>
+                <button class="config-tab" type="button" data-tab-target="cursor">Cursor</button>
+                <button class="config-tab" type="button" data-tab-target="windsurf">Windsurf</button>
+                <button class="config-tab" type="button" data-tab-target="vscode">VS Code</button>
+              </div>
+              <button class="copy-button" type="button" data-copy-source="#guideConfigs .config-content.is-active code">Copy</button>
+            </div>
+
+            <div id="guideConfigs">
+              <div class="config-content is-active" data-tab-panel="claude-desktop">
+                <div class="code-frame">
+                  <div class="code-header">
+                    <strong>claude_desktop_config.json</strong>
+                    <span>Bridge remote HTTP MCP through stdio</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [
+        <span class="string">"-y"</span>,
+        <span class="string">"mcp-remote"</span>,
+        <span class="string">"https://sourcegraph.com/.api/mcp"</span>
+      ]
+    }
+  }
+}</code></pre>
+                </div>
+              </div>
+
+              <div class="config-content" data-tab-panel="claude-code">
+                <div class="code-frame">
+                  <div class="code-header">
+                    <strong>.mcp.json</strong>
+                    <span>Project-scoped or user-scoped remote server</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"type"</span>: <span class="string">"http"</span>,
+      <span class="key">"url"</span>: <span class="string">"https://your-sourcegraph-instance.com/.api/mcp"</span>,
+      <span class="key">"headers"</span>: {
+        <span class="key">"Authorization"</span>: <span class="string">"token YOUR_ACCESS_TOKEN"</span>
+      }
+    }
+  }
+}</code></pre>
+                </div>
+              </div>
+
+              <div class="config-content" data-tab-panel="cursor">
+                <div class="code-frame">
+                  <div class="code-header">
+                    <strong>~/.cursor/mcp.json</strong>
+                    <span>Direct remote MCP configuration</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"url"</span>: <span class="string">"https://sourcegraph.com/.api/mcp"</span>,
+      <span class="key">"type"</span>: <span class="string">"http"</span>
+    }
+  }
+}</code></pre>
+                </div>
+              </div>
+
+              <div class="config-content" data-tab-panel="windsurf">
+                <div class="code-frame">
+                  <div class="code-header">
+                    <strong>~/.codeium/windsurf/mcp_config.json</strong>
+                    <span>Header-based remote MCP configuration</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"serverUrl"</span>: <span class="string">"https://your-sourcegraph-instance.com/.api/mcp"</span>,
+      <span class="key">"headers"</span>: {
+        <span class="key">"Authorization"</span>: <span class="string">"token YOUR_ACCESS_TOKEN"</span>,
+        <span class="key">"Content-Type"</span>: <span class="string">"application/json"</span>
+      }
+    }
+  }
+}</code></pre>
+                </div>
+              </div>
+
+              <div class="config-content" data-tab-panel="vscode">
+                <div class="code-frame">
+                  <div class="code-header">
+                    <strong>.vscode/mcp.json</strong>
+                    <span>VS Code style project-scoped MCP config</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"servers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"type"</span>: <span class="string">"http"</span>,
+      <span class="key">"url"</span>: <span class="string">"https://sourcegraph.com/.api/mcp"</span>
+    }
+  },
+  <span class="key">"inputs"</span>: []
+}</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="host-strip" aria-label="Compatibility notes">
+              <span class="host-badge">Claude Desktop via remote bridge</span>
+              <span class="host-badge">Claude Code</span>
+              <span class="host-badge">Cursor</span>
+              <span class="host-badge">Windsurf</span>
+              <span class="host-badge">VS Code / Copilot</span>
+              <span class="host-badge">Codex</span>
+              <span class="host-badge">Other MCP-compatible hosts</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section compact">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="eyebrow">One Concrete Implementation</span>
+            <h2 class="section-title">Sourcegraph MCP is one practical way to wire codebase context into agents.</h2>
+            <p class="lede">
+              As a concrete example, Sourcegraph MCP gives agents the same code intelligence surface developers rely on: repo discovery, keyword and natural-language search, file retrieval, symbol navigation, references, commit history, diff search, revision comparison, contributor discovery, and Deep Search.
+            </p>
+          </div>
+
+          <div class="workbench reveal">
+            <article class="workbench-panel" data-tab-group>
+              <div class="editor-topbar">
+                <div class="config-tab-row">
+                  <button class="config-tab is-active" type="button" data-tab-target="claude-desktop">Claude Desktop</button>
+                  <button class="config-tab" type="button" data-tab-target="cursor">Cursor</button>
+                  <button class="config-tab" type="button" data-tab-target="windsurf">Windsurf</button>
+                  <button class="config-tab" type="button" data-tab-target="vscode">VS Code</button>
+                </div>
+                <button class="copy-button" type="button" data-copy-source="#landingConfigs .config-content.is-active code">Copy</button>
+              </div>
+
+              <div id="landingConfigs">
+                <div class="config-content is-active" data-tab-panel="claude-desktop">
+                  <div class="code-header">
+                    <strong>claude_desktop_config.json</strong>
+                    <span>Use a remote MCP bridge when the host expects stdio</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [
+        <span class="string">"-y"</span>,
+        <span class="string">"mcp-remote"</span>,
+        <span class="string">"https://sourcegraph.com/.api/mcp"</span>
+      ]
+    }
+  }
+}</code></pre>
+                </div>
+
+                <div class="config-content" data-tab-panel="cursor">
+                  <div class="code-header">
+                    <strong>~/.cursor/mcp.json</strong>
+                    <span>Remote HTTP MCP configuration</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"url"</span>: <span class="string">"https://sourcegraph.com/.api/mcp"</span>,
+      <span class="key">"type"</span>: <span class="string">"http"</span>
+    }
+  }
+}</code></pre>
+                </div>
+
+                <div class="config-content" data-tab-panel="windsurf">
+                  <div class="code-header">
+                    <strong>~/.codeium/windsurf/mcp_config.json</strong>
+                    <span>Header-based remote MCP configuration</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"serverUrl"</span>: <span class="string">"https://your-sourcegraph-instance.com/.api/mcp"</span>,
+      <span class="key">"headers"</span>: {
+        <span class="key">"Authorization"</span>: <span class="string">"token YOUR_ACCESS_TOKEN"</span>,
+        <span class="key">"Content-Type"</span>: <span class="string">"application/json"</span>
+      }
+    }
+  }
+}</code></pre>
+                </div>
+
+                <div class="config-content" data-tab-panel="vscode">
+                  <div class="code-header">
+                    <strong>.vscode/mcp.json</strong>
+                    <span>VS Code / Copilot style project config</span>
+                  </div>
+                  <pre class="code-block"><code>{
+  <span class="key">"servers"</span>: {
+    <span class="key">"sourcegraph"</span>: {
+      <span class="key">"type"</span>: <span class="string">"http"</span>,
+      <span class="key">"url"</span>: <span class="string">"https://sourcegraph.com/.api/mcp"</span>
+    }
+  },
+  <span class="key">"inputs"</span>: []
+}</code></pre>
+                </div>
+              </div>
+
+              <div class="host-strip" aria-label="Supported hosts">
+                <span class="host-badge">Claude Desktop</span>
+                <span class="host-badge">Claude Code</span>
+                <span class="host-badge">Cursor</span>
+                <span class="host-badge">Windsurf</span>
+                <span class="host-badge">VS Code</span>
+                <span class="host-badge">Codex</span>
+                <span class="host-badge">Any MCP-compatible agent</span>
+              </div>
+            </article>
+
+            <article class="workbench-panel workbench-panel-guide">
+              <span class="eyebrow">Live Session</span>
+              <h3>How an agent uses a Sourcegraph-backed retrieval layer</h3>
+              <p>
+                The server is not “extra context” bolted onto the prompt. It is the retrieval layer. The agent decides what it needs, calls the right tool, reads the evidence, and only then acts.
+              </p>
+              <div class="walkthrough" id="landingWalkthrough"></div>
+              <p class="footnote">
+                Public open-source mode: point a compatible client at <code>https://sourcegraph.com/.api/mcp</code>. That uses the same Sourcegraph search surface available at <code>https://sourcegraph.com/search</code>. For private code, use your own Sourcegraph instance URL instead.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section compact">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="eyebrow">What Sourcegraph Exposes</span>
+            <h2 class="section-title">The complete Sourcegraph MCP tool inventory.</h2>
+            <p class="lede">
+              These are the Sourcegraph MCP tools an agent can discover from the server. Deep Search deserves special handling: <code>deepsearch({ question })</code> launches the long-form research run, and <code>deepsearch_read({ identifier })</code> reopens that conversation later by token or URL.
+            </p>
+          </div>
+
+          <div class="table-panel reveal">
+            <div class="table-scroll">
+              <table class="tool-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Tool</th>
+                    <th>What it gives the agent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Search</strong></td>
+                    <td><code>nls_search({ query })</code></td>
+                    <td>Semantic search for natural-language exploration when the agent knows the concept or behavior but not the exact token.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Search</strong></td>
+                    <td><code>keyword_search({ query })</code></td>
+                    <td>Keyword or regex search using Sourcegraph query syntax for exact search, boolean filters, repo targeting, and revision scoping.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Files</strong></td>
+                    <td><code>read_file({ repo, path, startLine?, endLine?, revision? })</code></td>
+                    <td>Fetches grounded file contents with optional line ranges and revision pinning so the model reads only the exact evidence it needs.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Repos</strong></td>
+                    <td><code>list_repos({ query, limit?, after?, before? })</code></td>
+                    <td>Discovers relevant repositories before the agent starts searching or reading, which matters in large multi-repo environments.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Files</strong></td>
+                    <td><code>list_files({ repo, path?, revision? })</code></td>
+                    <td>Lists files and directories inside a repository so the agent can map structure without guessing paths from thin air.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Navigation</strong></td>
+                    <td><code>go_to_definition({ repo, path, symbol, revision? })</code></td>
+                    <td>Locates the real symbol definition from a usage site, with revision-aware and cross-repo code intelligence.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Navigation</strong></td>
+                    <td><code>find_references({ repo, path, symbol, revision? })</code></td>
+                    <td>Finds symbol usage across the codebase so the agent can assess downstream consumers and change blast radius.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>History</strong></td>
+                    <td><code>commit_search({ repos, messageTerms?, authors?, contentTerms?, files?, after?, before? })</code></td>
+                    <td>Searches commit history by message, author, content, file path, and time bounds to recover intent and prior fixes.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>History</strong></td>
+                    <td><code>diff_search({ pattern, repos, added?, removed?, author?, after?, before? })</code></td>
+                    <td>Searches code diffs directly to find where a pattern was added or removed across repositories and time.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>History</strong></td>
+                    <td><code>compare_revisions({ repo, base, head, first?, after? })</code></td>
+                    <td>Compares two revisions to inspect the exact file-level delta between branches, commits, tags, or releases.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Ownership</strong></td>
+                    <td><code>get_contributor_repos({ author, limit?, minCommits? })</code></td>
+                    <td>Discovers contributor activity by repository, which helps agents infer likely ownership or domain familiarity.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Deep analysis</strong></td>
+                    <td><code>deepsearch({ question })</code></td>
+                    <td>Runs Sourcegraph Deep Search for complex, multi-step questions that need synthesis across many search, navigation, and history hops.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Deep analysis</strong></td>
+                    <td><code>deepsearch_read({ identifier })</code></td>
+                    <td>Reads a Deep Search conversation later by URL or token so the host can reopen, inspect, or continue prior research.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section compact">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="eyebrow">Example Session</span>
+            <h2 class="section-title">A realistic Sourcegraph MCP research loop.</h2>
+            <p class="lede">
+              The important pattern is incremental retrieval: search first, navigate next, read only the needed files, then make the model reason over evidence instead of raw repository mass.
+            </p>
+          </div>
+
+          <article class="terminal-shell walkthrough-panel reveal">
+            <div id="guideWalkthrough"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section compact">
+        <div class="container">
+          <div class="section-header reveal">
+            <span class="eyebrow">References</span>
+            <h2 class="section-title" style="font-size: clamp(1.8rem, 4vw, 3rem);">Current docs used for this guide</h2>
+          </div>
+
+          <div class="reference-grid reveal">
+            <article class="reference-card">
+              <h3>Sourcegraph MCP server docs</h3>
+              <p>Server endpoints, authentication modes, supported clients, and tool inventory.</p>
+              <p style="margin-top: 0.8rem;"><a href="https://sourcegraph.com/docs/api/mcp">Open the docs</a></p>
+            </article>
+            <article class="reference-card">
+              <h3>Sourcegraph integrations</h3>
+              <p>Public endpoint and current client integration patterns, including remote MCP examples.</p>
+              <p style="margin-top: 0.8rem;"><a href="https://sourcegraph.com/integrations">Open integrations</a></p>
+            </article>
+            <article class="reference-card">
+              <h3>MCP architecture docs</h3>
+              <p>Official explanation of hosts, clients, servers, and the resources/tools/prompts primitive model.</p>
+              <p style="margin-top: 0.8rem;"><a href="https://modelcontextprotocol.io/docs/learn/architecture">Open MCP architecture</a></p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section footer-cta">
+        <div class="container">
+          <article class="cta-panel panel reveal">
+            <span class="eyebrow">Back To The Narrative</span>
+            <h2 class="section-title">Once the agent can retrieve the right context, the rest of the stack gets <span class="gradient-word">much more reliable</span>.</h2>
+            <p class="lede">
+              Go back to the landing page for the interactive comparison, or keep reading the context deep dive if you want the architectural argument first.
+            </p>
+            <div class="actions" style="justify-content: center;">
+              <a class="btn" href="./index.html">Return to the landing page</a>
+              <a class="ghost-btn" href="./context-problem.html">Revisit the context deep dive</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+  <script src="./assets/site.js"></script>
+</body>
+</html>

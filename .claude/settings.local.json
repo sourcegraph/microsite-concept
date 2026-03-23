@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:background-agents.com)",
+      "Bash(brew install:*)",
+      "WebFetch(domain:medium.com)"
+    ]
+  }
+}
