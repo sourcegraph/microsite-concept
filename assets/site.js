@@ -658,6 +658,7 @@
 
     let activeIndex = 0;
     let token = 0;
+    let hasStarted = false;
     const renderScenario = async (index) => {
       token += 1;
       const localToken = token;
@@ -709,7 +710,29 @@
       });
     });
 
-    renderScenario(0);
+    const start = () => {
+      if (hasStarted) return;
+      hasStarted = true;
+      renderScenario(0);
+    };
+
+    if (reduceMotion) {
+      start();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          start();
+          observer.disconnect();
+        });
+      },
+      { threshold: 0.3, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    observer.observe(stage);
   }
 
   function initProtocolRail() {
