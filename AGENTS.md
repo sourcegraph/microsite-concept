@@ -20,4 +20,3 @@ When doing frontend design tasks, avoid generic, overbuilt layouts.
 - Ensure the page loads properly on both desktop and mobile.
 - For React code, prefer modern patterns including useEffectEvent, startTransition, and useDeferredValue when appropriate if used by the team. Do not add useMemo/useCallback by default unless already used; follow the repo's React Compiler guidance.
 
-Exception: If working within an existing website or design system, preserve the established patterns, structure, and visual language.
