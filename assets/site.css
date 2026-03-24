@@ -2204,6 +2204,8 @@ section[id] {
   font-family: var(--mono);
   font-size: 0.86rem;
   line-height: 1.75;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .console-response .bad-file {
@@ -2227,6 +2229,8 @@ section[id] {
   color: var(--gold);
   font-family: var(--mono);
   font-size: 0.74rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .log-line.is-live {

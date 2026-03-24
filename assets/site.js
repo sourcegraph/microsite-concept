@@ -4,116 +4,126 @@
 
   const demoScenarios = [
     {
-      query: "Trace how repository permissions are enforced before a workspace is deleted. Show the entrypoint, the definition, and the downstream checks.",
+      query: "A function in microsoft/vscode implements a three-way merge algorithm for Settings Sync that reconciles local, remote, and base versions, producing four sets: added, removed, updated, and conflicts. Identify the function and the file it lives in.",
       without: {
-        confidence: 19,
+        confidence: 33,
         segments: [
-          { text: "Repository deletion permissions are enforced in " },
-          { text: "permissions.ts", className: "bad-file" },
-          { text: ", with a secondary check in " },
-          { text: "workspaceAuth.go", className: "bad-file" },
-          { text: ". That is where the delete flow validates access before the request proceeds." }
-        ]
-      },
-      with: {
-        confidence: 96,
-        logs: [
-          'list_repos({ query: "workspace permissions authz", limit: 3 })',
-          'nls_search({ query: "where are workspace delete permissions enforced before a workspace is deleted" })',
-          'go_to_definition({ repo: "github.com/acme/workspaces", path: "internal/workspaces/handler.go", symbol: "DeleteWorkspace" })',
-          'find_references({ repo: "github.com/acme/workspaces", path: "internal/authz/permissions.go", symbol: "CanDeleteWorkspace" })',
-          'read_file({ repo: "github.com/acme/workspaces", path: "internal/authz/permissions.go", startLine: 88, endLine: 148 })'
-        ],
-        segments: [
-          { text: "Deletion is gated in " },
-          { text: "internal/workspaces/handler.go", className: "good-file" },
-          { text: ", which calls " },
-          { text: "CanDeleteWorkspace", className: "good-file" },
+          { text: "The function is " },
+          { text: "merge", className: "bad-file" },
           { text: " in " },
-          { text: "internal/authz/permissions.go:96", className: "good-file" },
-          { text: ". References show the same check reused by the admin API and the background cleanup worker." }
+          { text: "userDataSync/common/settingsMerge.ts", className: "bad-file" },
+          { text: ". It compares local and remote settings against a shared base and returns categorized change sets." }
+        ]
+      },
+      with: {
+        confidence: 100,
+        logs: [
+          'keyword_search({ query: "three-way merge" })',
+          'keyword_search({ query: "Settings Sync merge conflicts" })',
+          'keyword_search({ query: "added removed updated conflicts" })',
+          'read_file({ path: "...common/settingsMerge.ts" })',
+          'read_file({ path: "...common/keybindingsMerge.ts" })',
+          'keyword_search({ query: "export function merge local remote" })'
+        ],
+        segments: [
+          { text: "The function is " },
+          { text: "computeMergeResult", className: "good-file" },
+          { text: " in " },
+          { text: "userDataSync/common/keybindingsMerge.ts", className: "good-file" },
+          { text: ". It performs a three-way merge of keybinding settings, reconciling local/remote/base versions and producing categorized sets of added, removed, updated, and conflicting entries." }
         ]
       }
     },
     {
-      query: "Audit our API error handling. Which handlers follow the shared validation pattern, and which ones diverge from it?",
+      query: "Find all Java source files in Apache Flink under flink-streaming-java/src/ that contain @Deprecated annotations on DataStream API classes or methods. For each deprecated class, identify the class name and the recommended replacement.",
       without: {
-        confidence: 22,
+        confidence: 35,
         segments: [
-          { text: "The shared validation pattern is implemented in " },
-          { text: "errors.ts", className: "bad-file" },
-          { text: ", and the billing, users, and org settings handlers all follow it consistently for validation and not-found responses." }
+          { text: "Three deprecated classes found: AscendingTimestampExtractor (replace with WatermarkStrategy), TextInputFormat, and TextOutputFormat (replace with Source API). These are under streaming/api/. " },
+          { text: "No other deprecated DataStream classes exist in this tree.", className: "bad-file" }
         ]
       },
       with: {
-        confidence: 94,
+        confidence: 100,
         logs: [
-          'list_files({ repo: "github.com/acme/platform", path: "internal/api" })',
-          'keyword_search({ query: "repo:github.com/acme/platform (ValidationError|NewInputError|ErrNotFound)" })',
-          'deepsearch({ question: "Compare how API handlers translate validation and not-found errors across billing, users, and org settings. Identify the dominant pattern and outliers." })',
-          'deepsearch_read({ identifier: "ds://api-error-patterns-42b7" })',
-          'read_file({ repo: "github.com/acme/platform", path: "internal/api/errors.go", startLine: 1, endLine: 140 })'
+          'list_files({ path: "...streaming/api/" })',
+          'keyword_search({ query: "@Deprecated", path: "flink-streaming-java/src/" })',
+          'read_file({ path: "...source/DataGeneratorSource.java" })',
+          'read_file({ path: "...sink/TwoPhaseCommitSinkFunction.java" })',
+          'list_files({ path: "...api/io/" })',
+          'read_file({ path: "...file/sink/StreamingFileSink.java" })'
         ],
         segments: [
-          { text: "The dominant pattern is centralized translation through " },
-          { text: "internal/api/errors.go", className: "good-file" },
-          { text: ", with billing and users following the shared validation helper. Deep Search surfaces one outlier in org settings that still maps raw service errors directly in the handler." }
+          { text: "Seven deprecated DataStream API classes found: " },
+          { text: "DataGeneratorSource", className: "good-file" },
+          { text: ", DiscardingSink, TwoPhaseCommitSinkFunction, AscendingTimestampExtractor, TextInputFormat, TextOutputFormat, and " },
+          { text: "StreamingFileSink", className: "good-file" },
+          { text: ". Indexed search found all deprecated classes regardless of nesting depth, including files in " },
+          { text: "functions/sink/legacy/", className: "good-file" },
+          { text: " that the baseline grep missed." }
         ]
       }
     },
     {
-      query: "I need to add audit logs when an org admin changes SSO settings. Find the closest existing implementation and the files I should extend.",
+      query: "A bug in Grafana's v38 dashboard migration silently drops table panel fieldConfig.defaults.custom during import. Find the Go source files implementing the v38 schema migration, the function handling fieldConfig merging, and the schema version constant file.",
       without: {
-        confidence: 17,
+        confidence: 62,
         segments: [
-          { text: "The right implementation is already in " },
-          { text: "sso.ts", className: "bad-file" },
-          { text: ", which writes directly to the existing audit pipeline. Extending that handler is the correct way to emit SSO security events." }
+          { text: "The v38 schema migration is handled in " },
+          { text: "dashboard/state/DashboardMigrator.ts", className: "bad-file" },
+          { text: ", with the fieldConfig merge logic in the " },
+          { text: "updateSchema", className: "bad-file" },
+          { text: " function. Schema version constants are co-located in the same frontend module." }
         ]
       },
       with: {
-        confidence: 95,
+        confidence: 93,
         logs: [
-          'get_contributor_repos({ author: "sarah@acme.dev", limit: 4, minCommits: 6 })',
-          'nls_search({ query: "existing audit log for admin changes to organization security settings" })',
-          'keyword_search({ query: "repo:github.com/acme/enterprise \\\"audit log\\\" \\\"org settings\\\"" })',
-          'find_references({ repo: "github.com/acme/enterprise", path: "enterprise/internal/org/settings.go", symbol: "UpdateSSOSettings" })',
-          'read_file({ repo: "github.com/acme/enterprise", path: "enterprise/internal/audit/log_security_event.go", startLine: 1, endLine: 160 })'
+          'keyword_search({ query: "v38 migration" })',
+          'keyword_search({ query: "dashboardimport fieldConfig" })',
+          'list_files({ path: "pkg/services/dashboardimport/" })',
+          'read_file({ path: "...dashboardimport/v38.go" })',
+          'nls_search({ query: "v38 fieldConfig merge" })',
+          'read_file({ path: "...dashboardimport/migrations.go" })'
         ],
         segments: [
-          { text: "The closest pattern is the org domain verification flow, which emits a structured security event through " },
-          { text: "enterprise/internal/audit/log_security_event.go", className: "good-file" },
-          { text: ". References around " },
-          { text: "UpdateSSOSettings", className: "good-file" },
-          { text: " show the exact service and handler files you need to extend to keep the feature aligned with existing audit behavior." }
+          { text: "The v38 migration is implemented in " },
+          { text: "pkg/services/dashboardimport/v38.go", className: "good-file" },
+          { text: ", with " },
+          { text: "processPanelsV38", className: "good-file" },
+          { text: " containing the flawed fieldConfig.defaults.custom merge conditional. The schema version constant V38 is registered in " },
+          { text: "migrations.go", className: "good-file" },
+          { text: " via GetMigrations." }
         ]
       }
     },
     {
-      query: "Users are still getting billed after a workspace is deleted. Find the bug across the provisioning and billing repos, then show the fix path.",
+      query: "Find all Java source files in Apache Kafka under core/src/main/ and clients/src/main/ implementing ACL authorization logic. For each file, report the class name and whether it defines the authorization interface, implements it, or provides utilities.",
       without: {
-        confidence: 24,
+        confidence: 26,
         segments: [
-          { text: "The bug is in " },
-          { text: "billing/internal/subscriptions/cancel.go", className: "bad-file" },
-          { text: ", where workspace deletion should already trigger subscription cancellation. Updating that file fixes the issue." }
+          { text: "The core ACL interface is Authorizer.java in clients/.../security/authorizer/, with AclAuthorizer in core/src/main/scala/. Supporting classes include Action.java and KafkaPrincipal.java. " },
+          { text: "Authorization logic is contained within these two directories.", className: "bad-file" }
         ]
       },
       with: {
-        confidence: 95,
+        confidence: 49,
         logs: [
-          'list_repos({ query: "workspace provisioning billing", limit: 5 })',
-          'nls_search({ query: "workspace deletion should cancel billing subscription across provisioning and billing services" })',
-          'keyword_search({ query: "repo:github.com/acme/provisioning OR repo:github.com/acme/billing \\\"DeleteWorkspace\\\" OR \\\"CancelSubscription\\\"" })',
-          'find_references({ repo: "github.com/acme/provisioning", path: "internal/workspaces/delete.go", symbol: "DeleteWorkspace" })',
-          'read_file({ repo: "github.com/acme/billing", path: "internal/subscriptions/consumer.go", startLine: 1, endLine: 180 })'
+          'keyword_search({ query: "Authorizer OR AclAuthorizer" })',
+          'nls_search({ query: "authorizer implementation ACL" })',
+          'keyword_search({ query: "implements Authorizer" })',
+          'keyword_search({ query: "ClusterMetadataAuthorizer" })',
+          'list_files({ path: "...main/.../authorizer/" })',
+          'read_file({ path: "...StandardAuthorizer.java" })'
         ],
         segments: [
-          { text: "The bug is cross-repo: " },
-          { text: "DeleteWorkspace", className: "good-file" },
-          { text: " in provisioning no longer emits the event consumed by " },
-          { text: "internal/subscriptions/consumer.go", className: "good-file" },
-          { text: " in billing. The fix path is to restore the deletion event contract in provisioning and keep the existing cancellation consumer in billing unchanged." }
+          { text: "21 files across four modules: the Authorizer interface in " },
+          { text: "clients/", className: "good-file" },
+          { text: ", ClusterMetadataAuthorizer and StandardAuthorizer implementations in " },
+          { text: "metadata/", className: "good-file" },
+          { text: " and " },
+          { text: "server/", className: "good-file" },
+          { text: ", plus supporting classes (AclEntry, AclMutator, StandardAcl, AclCache) and the legacy AclApis.scala in core/. Authorization logic has migrated from core/ to metadata/ and server/ in recent releases." }
         ]
       }
     }
@@ -534,7 +544,7 @@
     }
 
     function tick(now) {
-      const progress = Math.min((now - start) / duration, 1);
+      const progress = Math.max(0, Math.min((now - start) / duration, 1));
       const pt = pointAt(progress);
       intro.style.setProperty("--bx", `${pt.x}%`);
       intro.style.setProperty("--by", `${pt.y}%`);
