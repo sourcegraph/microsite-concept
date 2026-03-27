@@ -130,11 +130,11 @@
   ];
 
   const protocolNodes = [
-    { title: "Agent", text: "Plans what to ask." },
-    { title: "MCP Client", text: "Lists resources, reads context, and calls tools." },
-    { title: "MCP Server", text: "Exposes capabilities, authentication, and protocol surface." },
-    { title: "Retrieval Layer", text: "Provides search, navigation, history, ownership, and deep analysis." },
-    { title: "Codebase", text: "Stays the ground truth the model retrieves from." }
+    { title: "Agent", text: "plans what to ask" },
+    { title: "MCP Client", text: "lists resources, reads context, and calls tools" },
+    { title: "MCP Server", text: "exposes capabilities, authentication, and protocol surface" },
+    { title: "Retrieval Layer", text: "provides search, navigation, history, ownership, and deep analysis" },
+    { title: "Codebase", text: "stays the ground truth the model retrieves from" }
   ];
 
   const landingWalkthrough = [
@@ -211,6 +211,15 @@
 
   function sleep(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function getScrollOffset() {
@@ -664,23 +673,86 @@
     if (!stage) return;
 
     const pills = qsa("[data-question-index]");
+    const leftConsole = qs(".contrast-column .console-view", stage);
     const leftQuery = qs("#withoutQuery");
     const leftResponse = qs("#withoutResponse");
     const leftValue = qs("#withoutConfidence");
     const leftFill = qs("#withoutConfidenceFill");
+    const rightConsole = qs(".contrast-column-lit .console-view", stage);
     const rightQuery = qs("#withQuery");
     const rightResponse = qs("#withResponse");
     const rightValue = qs("#withConfidence");
     const rightFill = qs("#withConfidenceFill");
     const logsContainer = qs("#contextLogs");
 
-    if (!pills.length || !leftQuery || !leftResponse || !leftValue || !leftFill || !rightQuery || !rightResponse || !rightValue || !rightFill || !logsContainer) {
+    if (!pills.length || !leftConsole || !leftQuery || !leftResponse || !leftValue || !leftFill || !rightConsole || !rightQuery || !rightResponse || !rightValue || !rightFill || !logsContainer) {
       return;
     }
+
+    const renderSegmentsHtml = (segments) =>
+      segments
+        .map((segment) => `<span class="${segment.className || ""}">${escapeHtml(segment.text)}</span>`)
+        .join("");
+
+    const measureConsoleHeight = (source, fillScenario, side) => {
+      const width = Math.round(source.getBoundingClientRect().width);
+      if (!width) return 0;
+
+      const clone = source.cloneNode(true);
+      clone.style.width = `${width}px`;
+      clone.style.flex = "none";
+      clone.style.minHeight = "0";
+      clone.style.height = "auto";
+
+      if (side === "left") {
+        qs("#withoutQuery", clone).textContent = fillScenario.query;
+        qs("#withoutResponse", clone).innerHTML = renderSegmentsHtml(fillScenario.without.segments);
+        qs("#withoutConfidence", clone).textContent = `${fillScenario.without.confidence}%`;
+        qs("#withoutConfidenceFill", clone).style.width = `${fillScenario.without.confidence}%`;
+      } else {
+        qs("#withQuery", clone).textContent = fillScenario.query;
+        qs("#withResponse", clone).innerHTML = renderSegmentsHtml(fillScenario.with.segments);
+        qs("#withConfidence", clone).textContent = `${fillScenario.with.confidence}%`;
+        qs("#withConfidenceFill", clone).style.width = `${fillScenario.with.confidence}%`;
+        qs("#contextLogs", clone).innerHTML = fillScenario.with.logs
+          .map((log) => `<div class="log-line is-live">${escapeHtml(`→ ${log}`)}</div>`)
+          .join("");
+      }
+
+      const measureLayer = doc.createElement("div");
+      measureLayer.setAttribute("aria-hidden", "true");
+      measureLayer.style.position = "absolute";
+      measureLayer.style.left = "0";
+      measureLayer.style.top = "0";
+      measureLayer.style.visibility = "hidden";
+      measureLayer.style.pointerEvents = "none";
+      measureLayer.style.zIndex = "-1";
+      measureLayer.appendChild(clone);
+      doc.body.appendChild(measureLayer);
+
+      const height = clone.getBoundingClientRect().height;
+      measureLayer.remove();
+      return height;
+    };
+
+    const lockConsoleHeights = () => {
+      const maxHeight = demoScenarios.reduce((largest, scenario) => {
+        const leftHeight = measureConsoleHeight(leftConsole, scenario, "left");
+        const rightHeight = measureConsoleHeight(rightConsole, scenario, "right");
+        return Math.max(largest, leftHeight, rightHeight);
+      }, 0);
+
+      if (!maxHeight) return;
+      const lockedHeight = `${Math.ceil(maxHeight)}px`;
+      leftConsole.style.minHeight = lockedHeight;
+      rightConsole.style.minHeight = lockedHeight;
+    };
 
     let activeIndex = 0;
     let token = 0;
     let hasStarted = false;
+    let resizeFrame = 0;
+
     const renderScenario = async (index) => {
       token += 1;
       const localToken = token;
@@ -732,6 +804,17 @@
       });
     });
 
+    lockConsoleHeights();
+    window.addEventListener("resize", () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        lockConsoleHeights();
+        if (hasStarted) {
+          renderScenario(activeIndex);
+        }
+      });
+    });
+
     const start = () => {
       if (hasStarted) return;
       hasStarted = true;
@@ -774,7 +857,11 @@
       activeIndex = index;
       title.textContent = state.title;
       text.textContent = state.text;
-      buttons.forEach((button, buttonIndex) => button.classList.toggle("is-active", buttonIndex === index));
+      buttons.forEach((button, buttonIndex) => {
+        const active = buttonIndex === index;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-selected", active ? "true" : "false");
+      });
     };
 
     const startAuto = () => {

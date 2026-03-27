@@ -81,7 +81,6 @@
           <div class="hero-sourcegraph-orbit hero-sourcegraph-orbit-b"></div>
           <div class="hero-sourcegraph-orbit hero-sourcegraph-orbit-c"></div>
           <div class="hero-sourcegraph-copy">
-            <span class="hero-sourcegraph-kicker">Microsite built by</span>
             <img class="hero-sourcegraph-logo" src="./assets/sourcegraph.svg" alt="Sourcegraph">
           </div>
         </div>
@@ -259,6 +258,71 @@
       </div>
     </section>
 
+    <section class="section protocol-section" id="how-mcp-works">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">How MCP Works</span>
+          <h2 class="section-title statement-title">An open protocol for pulling context on demand.</h2>
+          <p class="section-copy">
+            Model Context Protocol (MCP) gives agents a standard way to retrieve information beyond their context window - search indexes, code intelligence, history and etc — on demand.
+          </p>
+        </div>
+
+        <div class="protocol-stage reveal" data-tab-group>
+          <div class="protocol-rail" id="protocolRail" aria-label="Agent to codebase flow">
+            <button class="protocol-node is-active" type="button" data-node-index="0">
+              <span class="protocol-node-title">Agent</span>
+              <span class="protocol-node-copy">plans what to ask</span>
+            </button>
+            <button class="protocol-node" type="button" data-node-index="1">
+              <span class="protocol-node-title">MCP Client</span>
+              <span class="protocol-node-copy">list, read, call</span>
+            </button>
+            <button class="protocol-node" type="button" data-node-index="2">
+              <span class="protocol-node-title">MCP Server</span>
+              <span class="protocol-node-copy">capabilities + auth</span>
+            </button>
+            <button class="protocol-node" type="button" data-node-index="3">
+              <span class="protocol-node-title">Retrieval Layer</span>
+              <span class="protocol-node-copy">search, nav, history</span>
+            </button>
+            <button class="protocol-node" type="button" data-node-index="4">
+              <span class="protocol-node-title">Codebase</span>
+              <span class="protocol-node-copy">ground truth</span>
+            </button>
+          </div>
+
+          <div class="protocol-active">
+            <h3 id="protocolTitle">Agent</h3>
+            <p id="protocolText">plans what to ask</p>
+          </div>
+
+          <div class="protocol-facets">
+            <div class="config-tab-row">
+              <button class="config-tab is-active" type="button" data-tab-target="resources">Resources</button>
+              <button class="config-tab" type="button" data-tab-target="tools">Tools</button>
+              <button class="config-tab" type="button" data-tab-target="prompts">Prompts</button>
+            </div>
+
+            <div class="facet-panels">
+              <div class="facet-panel is-active" data-tab-panel="resources">
+                <h3>Read-only context</h3>
+                <p>Resources expose structured data to the host: schema-like material, documents, or any other context the agent should be able to read without executing an action.</p>
+              </div>
+              <div class="facet-panel" data-tab-panel="tools">
+                <h3>Executable actions</h3>
+                <p>Tools are the workhorses. The agent lists them, then executes focused actions like repo discovery, code search, file reads, symbol navigation, revision comparison, contributor lookup, or Deep Search.</p>
+              </div>
+              <div class="facet-panel" data-tab-panel="prompts">
+                <h3>Reusable templates</h3>
+                <p>Prompts package guidance and examples so hosts can reuse proven workflows. They help structure the interaction without overloading every request with boilerplate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section sourcegraph-mcp-section" id="sourcegraph-mcp-works">
       <div class="container">
         <div class="section-heading reveal">
@@ -398,9 +462,14 @@
           </article>
         </div>
 
-        <div class="loop-mcp-cta reveal">
+      </div>
+    </section>
+
+    <section class="section footer-cta">
+      <div class="container">
+        <div class="cta-inner reveal">
           <a class="text-link" href="./context-problem.html">
-            Read Software Factory
+            Read about Software Factory
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
