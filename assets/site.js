@@ -130,11 +130,11 @@
   ];
 
   const protocolNodes = [
-    { title: "Agent", text: "plans what to ask" },
-    { title: "MCP Client", text: "lists resources, reads context, and calls tools" },
-    { title: "MCP Server", text: "exposes capabilities, authentication, and protocol surface" },
-    { title: "Retrieval Layer", text: "provides search, navigation, history, ownership, and deep analysis" },
-    { title: "Codebase", text: "stays the ground truth the model retrieves from" }
+    { title: "Agent", text: "Plans what to ask." },
+    { title: "MCP Client", text: "Lists resources, reads context, and calls tools." },
+    { title: "MCP Server", text: "Exposes capabilities, authentication, and protocol surface." },
+    { title: "Retrieval Layer", text: "Provides search, navigation, history, ownership, and deep analysis." },
+    { title: "Codebase", text: "Stays the ground truth the model retrieves from." }
   ];
 
   const landingWalkthrough = [
@@ -292,6 +292,7 @@
   }
 
   function initChapterRail() {
+    const rail = qs(".chapter-rail");
     const states = qsa("[data-chapter-target]")
       .map((link) => {
         const id = link.getAttribute("data-chapter-target");
@@ -304,6 +305,8 @@
     if (!states.length) return;
 
     let activeId = "";
+    const gateId = rail?.getAttribute("data-chapter-gate");
+    const gateSection = gateId ? qs(`#${gateId}`) : null;
 
     const setActive = (id) => {
       if (!id || id === activeId) return;
@@ -320,6 +323,12 @@
       });
     };
 
+    const syncVisibility = () => {
+      if (!rail || !gateSection) return;
+      const pivot = window.scrollY + getScrollOffset() + Math.min(window.innerHeight * 0.18, 180);
+      rail.classList.toggle("is-gated-hidden", pivot < gateSection.offsetTop);
+    };
+
     const syncActive = () => {
       const pivot = window.scrollY + getScrollOffset() + Math.min(window.innerHeight * 0.22, 220);
       let current = states[0].id;
@@ -333,7 +342,10 @@
       setActive(current);
     };
 
+    syncVisibility();
     syncActive();
+    window.addEventListener("scroll", syncVisibility, { passive: true });
+    window.addEventListener("resize", syncVisibility);
     window.addEventListener("scroll", syncActive, { passive: true });
     window.addEventListener("resize", syncActive);
   }
