@@ -532,55 +532,6 @@
     });
   }
 
-  function initPageIntro() {
-    const intro = doc.getElementById("pageIntro");
-    if (!intro || reduceMotion) {
-      if (intro) intro.remove();
-      return;
-    }
-
-    // Spotlight sweep path: [x%, y%] waypoints
-    const path = [
-      { x: -15, y: 55 },
-      { x:  20, y: 40 },
-      { x:  55, y: 50 },
-      { x:  30, y: 43 },
-      { x:  28, y: 43 },
-    ];
-
-    const duration = 2600;
-    const start = performance.now();
-
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
-
-    function pointAt(progress) {
-      const scaled = progress * (path.length - 1);
-      const i = Math.min(Math.floor(scaled), path.length - 2);
-      const t = ease(scaled - i);
-      return {
-        x: lerp(path[i].x, path[i + 1].x, t),
-        y: lerp(path[i].y, path[i + 1].y, t),
-      };
-    }
-
-    function tick(now) {
-      const progress = Math.max(0, Math.min((now - start) / duration, 1));
-      const pt = pointAt(progress);
-      intro.style.setProperty("--bx", `${pt.x}%`);
-      intro.style.setProperty("--by", `${pt.y}%`);
-
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        intro.classList.add("is-done");
-        setTimeout(() => intro.remove(), 700);
-      }
-    }
-
-    requestAnimationFrame(tick);
-  }
-
   function initTypewriter() {
     const target = qs("[data-typewriter]");
     if (!target) return;
@@ -592,10 +543,6 @@
     const scene = qs("#heroScene");
     if (!scene) return;
 
-    let auto = !reduceMotion;
-    let rafId = 0;
-    let frame = 0;
-
     const setPointer = (x, y) => {
       scene.style.setProperty("--pointer-x", `${clamp(x, 8, 92)}%`);
       scene.style.setProperty("--pointer-y", `${clamp(y, 10, 90)}%`);
@@ -605,44 +552,10 @@
       scene.classList.add("is-lit");
     };
 
-    const syncFromEvent = (event) => {
-      const rect = scene.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      setPointer(x, y);
-    };
-
-    const animate = () => {
-      if (auto) {
-        frame += 0.008;
-        const x = 74 + Math.cos(frame) * 9;
-        const y = 44 + Math.sin(frame * 1.2) * 14;
-        setPointer(x, y);
-      }
-      rafId = requestAnimationFrame(animate);
-    };
-
-    scene.addEventListener("pointermove", (event) => {
-      auto = false;
-      syncFromEvent(event);
-    });
-
-    scene.addEventListener("pointerleave", () => {
-      if (!reduceMotion) {
-        auto = true;
-      }
-    });
-
     scene.addEventListener("click", awaken);
     qs("#heroCta")?.addEventListener("click", awaken);
 
     setPointer(76, 42);
-
-    if (!reduceMotion) {
-      animate();
-      window.addEventListener("beforeunload", () => cancelAnimationFrame(rafId), { once: true });
-    }
   }
 
   async function typeSegments(node, segments, shouldAbort) {
@@ -1096,7 +1009,6 @@
     initUtilityBar();
     initCopyButtons();
     initTabs();
-    initPageIntro();
     initTicker();
     initCounters();
     initTypewriter();

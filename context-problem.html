@@ -14,7 +14,8 @@
       --f-gold:   #ffc247;
       --f-amber:  #ed2e20;
       --f-teal:   #69d9d0;
-      --f-pink:   #d62687;
+      /* Organisational layer: dark orange (readable on dark bg; replaces magenta) */
+      --f-organisational: #c2410c;
       --f-dim:    rgba(255,255,255,0.32);
       --f-line:   rgba(255,194,71,0.18);
     }
@@ -52,6 +53,13 @@
       background: currentColor;
     }
 
+    .f-kicker--sentence {
+      text-transform: none;
+      letter-spacing: 0.06em;
+      line-height: 1.45;
+      max-width: min(52ch, 100%);
+    }
+
     .f-h2 {
       margin: 0 0 0.5rem;
       font-family: var(--display);
@@ -68,6 +76,83 @@
       font-size: 1rem;
       line-height: 1.72;
       margin: 0.5rem 0 0;
+    }
+
+    /* Single-line lead when viewport is wide enough (avoids overflow on narrow screens) */
+    .f-lead-one-line {
+      max-width: none;
+    }
+
+    @media (min-width: 900px) {
+      .f-lead-one-line {
+        white-space: nowrap;
+      }
+    }
+
+    .f-ref {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      line-height: 0;
+      vertical-align: super;
+    }
+
+    .f-ref + .f-ref {
+      margin-left: 0.2em;
+    }
+
+    .f-ref a {
+      color: var(--f-gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .f-ref a:hover {
+      text-decoration: underline;
+      text-underline-offset: 0.1em;
+    }
+
+    .f-footnotes-wrap {
+      margin-top: 4rem;
+      padding: 2.5rem 0 4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .f-footnotes-heading {
+      margin: 0 0 1rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .f-footnotes-list {
+      margin: 0;
+      padding: 0 0 0 1.35rem;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .f-footnotes-list a {
+      color: var(--f-gold);
+      word-break: break-all;
+    }
+
+    .f-footnotes-list a:hover {
+      text-decoration: underline;
+    }
+
+    .f-footnotes-back {
+      margin-left: 0.25rem;
+      color: var(--text-soft);
+      text-decoration: none;
+      font-size: 0.85em;
+    }
+
+    .f-footnotes-back:hover {
+      color: var(--f-gold);
     }
 
     /* ─── Scroll reveal ───────────────────────────────── */
@@ -157,17 +242,21 @@
     }
 
     .factory-hero-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: clamp(0.2rem, 0.55vw, 0.45rem);
       margin: 0 0 2.4rem;
       font-family: var(--display);
       font-size: clamp(2.15rem, 5.35vw, 4.7rem);
       font-weight: 700;
-      line-height: 0.87;
-      letter-spacing: -0.055em;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
     }
     .factory-hero-title .line-white  { display: block; color: var(--text); }
     .factory-hero-title .line-gold   { display: block; color: var(--f-gold); }
     .factory-hero-title .line-red    { display: block; color: rgba(237,46,32,0.88); }
-    .factory-hero-title .line-dim    { display: block; color: var(--f-dim); font-size: 0.58em; letter-spacing: -0.03em; margin-top: 0.15em; }
+    .factory-hero-title .line-dim    { display: block; color: var(--f-dim); font-size: 0.58em; letter-spacing: 0.02em; margin-top: 0.08em; }
 
     .factory-hero-lede {
       max-width: 50ch;
@@ -256,7 +345,7 @@
 
     .factory-gallery-card {
       position: relative;
-      min-height: 21rem;
+      min-height: 0;
       padding: 1.35rem 1.35rem 1.4rem;
       border-radius: 1.7rem;
       border: 1px solid rgba(255,194,71,0.14);
@@ -266,8 +355,8 @@
       box-shadow: 0 26px 60px rgba(0,0,0,0.26);
       scroll-snap-align: start;
       display: grid;
-      align-content: space-between;
-      gap: 1.2rem;
+      align-content: start;
+      gap: 0.95rem;
     }
 
     .factory-gallery-card::before {
@@ -347,7 +436,8 @@
       align-items: center;
       justify-content: flex-end;
       gap: 1rem;
-      padding-top: 0.9rem;
+      margin-top: 0.15rem;
+      padding-top: 0.75rem;
       border-top: 1px solid rgba(255,194,71,0.12);
     }
 
@@ -399,10 +489,10 @@
     }
 
     .factory-hero-gallery .factory-gallery-card {
-      min-height: 15rem;
+      min-height: 0;
       padding: 1rem 1rem 1.05rem;
       border-radius: 1.4rem;
-      gap: 0.95rem;
+      gap: 0.85rem;
       box-shadow: 0 18px 42px rgba(0,0,0,0.24);
     }
 
@@ -539,17 +629,36 @@
       position: relative;
       z-index: 1;
       display: grid;
+      grid-template-rows: 1fr auto 1fr;
+      align-items: center;
       justify-items: center;
-      gap: 0.9rem;
+      gap: 0.35rem;
       text-align: center;
+      min-height: 11.5rem;
     }
 
-    .factory-flow-step:nth-child(even) {
-      padding-top: 3.1rem;
+    .factory-flow-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      max-width: 100%;
     }
 
-    .factory-flow-step:nth-child(odd) {
-      padding-bottom: 3.1rem;
+    .factory-flow-stack--above {
+      align-self: end;
+      padding-bottom: 0.15rem;
+    }
+
+    .factory-flow-stack--below {
+      align-self: start;
+      padding-top: 0.15rem;
+    }
+
+    .factory-flow-void {
+      min-height: 0;
+      pointer-events: none;
     }
 
     .factory-flow-dot {
@@ -591,99 +700,178 @@
 
     .factory-agent-system {
       position: relative;
-      display: grid;
-      gap: 1.3rem;
-      align-content: center;
-      min-height: 100%;
-      padding: 1.2rem 0;
-    }
-
-    .factory-agent-core {
-      position: absolute;
-      inset: 50% auto auto 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--display);
-      font-size: clamp(2.1rem, 4.8vw, 4rem);
-      font-weight: 700;
-      line-height: 0.88;
-      letter-spacing: -0.07em;
-      color: rgba(255,255,255,0.08);
-      text-transform: lowercase;
-      pointer-events: none;
-      animation: primerCoreBreath 6.5s ease-in-out infinite;
-    }
-
-    .factory-agent-lane {
-      position: relative;
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
       gap: 1rem;
-      align-items: center;
+      min-height: 100%;
+      padding: 0.35rem 0;
     }
 
-    .factory-agent-trigger,
-    .factory-agent-result {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.52);
-      white-space: nowrap;
+    .factory-agent-conveyor {
+      width: 100%;
+      max-width: 36rem;
+      margin-inline: auto;
+      border-radius: 10px;
+      background: linear-gradient(165deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 18px 48px rgba(0,0,0,0.35);
+      padding: 0.85rem 0.9rem 1rem;
     }
 
-    .factory-agent-result {
-      color: rgba(105,217,208,0.75);
-      text-align: right;
-    }
-
-    .factory-agent-line {
+    .conveyor-viewport {
       position: relative;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(255,194,71,0.22), rgba(255,255,255,0.12), rgba(105,217,208,0.3));
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-radius: 6px;
+      padding: 0.65rem 0 0.55rem;
+    }
+
+    .conveyor-blocks-row {
       overflow: hidden;
+      margin: 0 -0.15rem;
+      padding: 0 0.15rem 0.15rem;
     }
 
-    .factory-agent-line::before,
-    .factory-agent-line::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      border-radius: 999px;
-      transform: translateY(-50%);
+    .conveyor-marquee {
+      display: flex;
+      width: max-content;
+      gap: 0.65rem;
+      align-items: flex-end;
+      animation: conveyorScrollRtl 20s linear infinite;
     }
 
-    .factory-agent-line::before {
-      left: -10%;
-      width: 24%;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(255,194,71,0), rgba(255,194,71,0.92), rgba(255,255,255,0.98), rgba(105,217,208,0));
-      filter: blur(0.5px);
-      animation: primerLaneSweep 4.4s linear infinite;
+    /* Items move right → left (strip translates left). */
+    @keyframes conveyorScrollRtl {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
     }
 
-    .factory-agent-line::after {
-      left: 42%;
-      width: 0.5rem;
-      height: 0.5rem;
-      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(105,217,208,0.85) 55%, rgba(105,217,208,0.08) 100%);
-      box-shadow: 0 0 18px rgba(105,217,208,0.45);
-      animation: primerLaneDot 3.6s ease-in-out infinite;
+    .conveyor-belt-assembly {
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      gap: 0;
     }
 
-    .factory-agent-lane:nth-child(2) .factory-agent-line::before {
-      animation-delay: -1.2s;
+    .conveyor-belt-roller {
+      flex-shrink: 0;
+      width: 9px;
+      height: 13px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, rgba(90,90,95,0.95) 0%, rgba(28,28,32,1) 55%, rgba(18,18,22,1) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 2px 4px rgba(0,0,0,0.35);
     }
 
-    .factory-agent-lane:nth-child(3) .factory-agent-line::before {
-      animation-delay: -2.2s;
+    .conveyor-belt-surface {
+      flex: 1;
+      min-width: 0;
+      height: 10px;
+      border-radius: 2px;
+      margin: 0 1px;
+      background-image:
+        linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 42%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.07) 0 2px,
+          rgba(0,0,0,0.15) 2px 4px
+        );
+      background-size: 100% 100%, 8px 100%;
+      background-repeat: no-repeat, repeat;
+      box-shadow:
+        inset 0 2px 3px rgba(0,0,0,0.45),
+        inset 0 -1px 0 rgba(255,255,255,0.06);
+      animation: conveyorBeltTread 1.1s linear infinite;
     }
 
-    .factory-agent-lane:nth-child(2) .factory-agent-line::after {
-      animation-delay: -0.9s;
+    @keyframes conveyorBeltTread {
+      0% {
+        background-position: 0 0, 0 0;
+      }
+
+      100% {
+        background-position: 0 0, -8px 0;
+      }
     }
 
-    .factory-agent-lane:nth-child(3) .factory-agent-line::after {
-      animation-delay: -1.8s;
+    .conveyor-item {
+      flex-shrink: 0;
+      width: 1.35rem;
+      height: 1.1rem;
+      border-radius: 2px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    }
+
+    .conveyor-item--yellow {
+      background: linear-gradient(180deg, #f0d666 0%, #d4a827 100%);
+    }
+
+    .conveyor-item--orange {
+      background: linear-gradient(180deg, #f08c3d 0%, #c2410c 100%);
+    }
+
+    .conveyor-item--teal {
+      background: linear-gradient(180deg, #7ee8df 0%, #3aa89f 100%);
+    }
+
+    .conveyor-legend {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.04em;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.62);
+    }
+
+    .conveyor-legend li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .conveyor-legend-swatch {
+      flex-shrink: 0;
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 2px;
+      margin-top: 0.15em;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+    }
+
+    .conveyor-legend-swatch--yellow {
+      background: linear-gradient(180deg, #f0d666 0%, #d4a827 100%);
+    }
+
+    .conveyor-legend-swatch--orange {
+      background: linear-gradient(180deg, #f08c3d 0%, #c2410c 100%);
+    }
+
+    .conveyor-legend-swatch--teal {
+      background: linear-gradient(180deg, #7ee8df 0%, #3aa89f 100%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .conveyor-marquee {
+        animation: none;
+        transform: translateX(-18%);
+      }
+
+      .conveyor-belt-surface {
+        animation: none;
+      }
     }
 
     @keyframes primerFlowPulse {
@@ -716,52 +904,6 @@
       50% {
         transform: scale(1.14);
         opacity: 1;
-      }
-    }
-
-    @keyframes primerLaneSweep {
-      0% {
-        transform: translate(-8%, -50%);
-        opacity: 0;
-      }
-
-      14% {
-        opacity: 1;
-      }
-
-      84% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translate(410%, -50%);
-        opacity: 0;
-      }
-    }
-
-    @keyframes primerLaneDot {
-      0%,
-      100% {
-        transform: translate(-0.5rem, -50%) scale(0.88);
-        opacity: 0.58;
-      }
-
-      50% {
-        transform: translate(0.5rem, -50%) scale(1.12);
-        opacity: 1;
-      }
-    }
-
-    @keyframes primerCoreBreath {
-      0%,
-      100% {
-        opacity: 0.06;
-        transform: translate(-50%, -50%) scale(0.98);
-      }
-
-      50% {
-        opacity: 0.12;
-        transform: translate(-50%, -50%) scale(1.03);
       }
     }
 
@@ -920,6 +1062,11 @@
       max-width: 42rem;
       width: 100%;
     }
+    /* Ring label must match organisational orange (explicit fill beats any inherited SVG/text styling) */
+    .factory-layers-svg text.factory-org-ring-label {
+      fill: var(--f-organisational);
+      fill-opacity: 1;
+    }
 
     .f-layer { padding: 1.6rem 0; }
     .f-layer + .f-layer { border-top: 1px solid rgba(255,255,255,0.07); }
@@ -933,7 +1080,7 @@
     }
     .f-layer-name--cb   { color: var(--f-gold); }
     .f-layer-name--ops  { color: var(--f-teal); }
-    .f-layer-name--org  { color: var(--f-pink); }
+    .f-layer-name--org  { color: var(--f-organisational); }
 
     .f-layer-desc {
       font-size: 0.9rem;
@@ -959,7 +1106,7 @@
     }
     .f-tag--cb  { color: var(--f-gold); }
     .f-tag--ops { color: var(--f-teal); }
-    .f-tag--org { color: var(--f-pink); }
+    .f-tag--org { color: var(--f-organisational); }
 
     /* ─── WHY OVERLOOKED ──────────────────────────────── */
     .f-overlooked-grid {
@@ -998,6 +1145,22 @@
       font-size: 0.88rem;
       color: var(--text-dim);
       line-height: 1.66;
+    }
+
+    .f-overlooked-link {
+      display: inline-block;
+      margin-top: 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      color: var(--f-gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,194,71,0.35);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .f-overlooked-link:hover {
+      border-bottom-color: rgba(255,194,71,0.65);
     }
 
     /* ─── CONTEXT POISONING ───────────────────────────── */
@@ -1257,12 +1420,16 @@
     }
 
     .factory-close-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: clamp(0.22rem, 0.6vw, 0.55rem);
       margin: 0 auto 0.6rem;
       font-family: var(--display);
       font-size: clamp(3rem, 7vw, 6.5rem);
       font-weight: 700;
-      line-height: 0.9;
-      letter-spacing: -0.06em;
+      line-height: 1.06;
+      letter-spacing: -0.028em;
     }
     .factory-close-title .line-gold { display: block; color: var(--f-gold); }
     .factory-close-title .line-white { display: block; color: var(--text); }
@@ -1310,15 +1477,6 @@
       .factory-close-inner { grid-template-columns: 1fr; gap: 3rem; }
       .factory-close-inner .factory-close-title { font-size: clamp(2.4rem, 6vw, 3.8rem); }
     }
-    .loop-context-dot {
-      animation: ctxPulse 2.8s ease-in-out infinite;
-      transform-box: fill-box;
-      transform-origin: center;
-    }
-    @keyframes ctxPulse {
-      0%, 100% { opacity: 0.85; transform: scale(1); }
-      50%       { opacity: 1;    transform: scale(1.45); }
-    }
     .loops-legend {
       display: flex;
       justify-content: center;
@@ -1361,8 +1519,7 @@
       .factory-flow             { gap: 1rem; }
       .factory-flow::before,
       .factory-flow::after      { left: 9%; right: 9%; }
-      .factory-flow-step:nth-child(even) { padding-top: 2.4rem; }
-      .factory-flow-step:nth-child(odd)  { padding-bottom: 2.4rem; }
+      .factory-flow-step        { min-height: 10rem; }
       .factory-flow-label       { max-width: 4.8rem; white-space: normal; line-height: 1.25; font-size: 0.58rem; letter-spacing: 0.14em; }
       .factory-flow-word        { font-size: 0.94rem; }
       .factory-agent-core       { inset: 50% auto auto 52%; font-size: clamp(1.7rem, 12vw, 2.8rem); }
@@ -1378,7 +1535,6 @@
       .factory-gallery-note     { margin-left: 0; }
       .factory-gallery-track    { grid-auto-columns: minmax(18.5rem, 86vw); }
       .factory-hero-gallery .factory-gallery-track { grid-auto-columns: minmax(15.75rem, 78vw); }
-      .factory-hero-gallery .factory-gallery-card  { min-height: 13.6rem; }
     }
   </style>
 </head>
@@ -1510,24 +1666,38 @@
           <div class="factory-primer-visual reveal reveal-d1" aria-hidden="true">
             <div class="factory-flow">
               <div class="factory-flow-step">
-                <span class="factory-flow-label">Request</span>
+                <div class="factory-flow-stack factory-flow-stack--above">
+                  <span class="factory-flow-label">Request</span>
+                  <span class="factory-flow-word">Define</span>
+                </div>
                 <span class="factory-flow-dot"></span>
-                <span class="factory-flow-word">Define</span>
+                <span class="factory-flow-void" aria-hidden="true"></span>
               </div>
               <div class="factory-flow-step">
-                <span class="factory-flow-label">Agent</span>
+                <div class="factory-flow-stack factory-flow-stack--above">
+                  <span class="factory-flow-label">Agent</span>
+                </div>
                 <span class="factory-flow-dot"></span>
-                <span class="factory-flow-word">Run</span>
+                <div class="factory-flow-stack factory-flow-stack--below">
+                  <span class="factory-flow-word">Run</span>
+                </div>
               </div>
               <div class="factory-flow-step">
-                <span class="factory-flow-label">Checks</span>
+                <div class="factory-flow-stack factory-flow-stack--above">
+                  <span class="factory-flow-label">Checks</span>
+                  <span class="factory-flow-word">Verify</span>
+                </div>
                 <span class="factory-flow-dot"></span>
-                <span class="factory-flow-word">Verify</span>
+                <span class="factory-flow-void" aria-hidden="true"></span>
               </div>
               <div class="factory-flow-step">
-                <span class="factory-flow-label">Pull request</span>
+                <div class="factory-flow-stack factory-flow-stack--above">
+                  <span class="factory-flow-label">Pull request</span>
+                </div>
                 <span class="factory-flow-dot"></span>
-                <span class="factory-flow-word">Ship</span>
+                <div class="factory-flow-stack factory-flow-stack--below">
+                  <span class="factory-flow-word">Ship</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1538,27 +1708,37 @@
         <div class="factory-primer-row factory-primer-row--reverse">
           <div class="factory-primer-copy reveal reveal-d1">
             <div class="f-kicker">Background agents</div>
-            <h3 class="f-h2 factory-primer-title">They are the workers on the line.</h3>
-            <p class="f-lead">A ticket, schedule, or system signal starts the job. Multiple background agents work away from the keyboard and return code ready for review.</p>
+            <h3 class="f-h2 factory-primer-title">Workers on the production line</h3>
+            <p class="f-lead">Multiple background agents work away from the keyboard and return code ready for review.</p>
           </div>
 
-          <div class="factory-primer-visual reveal reveal-d2" aria-hidden="true">
+          <div class="factory-primer-visual reveal reveal-d2">
             <div class="factory-agent-system">
-              <div class="factory-agent-core">background<br>agents</div>
-              <div class="factory-agent-lane">
-                <span class="factory-agent-trigger">Ticket</span>
-                <span class="factory-agent-line"></span>
-                <span class="factory-agent-result">PR ready</span>
-              </div>
-              <div class="factory-agent-lane">
-                <span class="factory-agent-trigger">Schedule</span>
-                <span class="factory-agent-line"></span>
-                <span class="factory-agent-result">Tests run</span>
-              </div>
-              <div class="factory-agent-lane">
-                <span class="factory-agent-trigger">Signal</span>
-                <span class="factory-agent-line"></span>
-                <span class="factory-agent-result">Merge queue</span>
+              <div class="factory-agent-conveyor">
+                <div class="conveyor-viewport" aria-hidden="true">
+                  <div class="conveyor-blocks-row">
+                    <div class="conveyor-marquee" id="conveyor-marquee"></div>
+                  </div>
+                  <div class="conveyor-belt-assembly">
+                    <div class="conveyor-belt-roller conveyor-belt-roller--left" aria-hidden="true"></div>
+                    <div class="conveyor-belt-surface" aria-hidden="true"></div>
+                    <div class="conveyor-belt-roller conveyor-belt-roller--right" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <ul class="conveyor-legend">
+                  <li>
+                    <span class="conveyor-legend-swatch conveyor-legend-swatch--yellow" aria-hidden="true"></span>
+                    <span>Human triggers (Slack, Jira, and so on).</span>
+                  </li>
+                  <li>
+                    <span class="conveyor-legend-swatch conveyor-legend-swatch--orange" aria-hidden="true"></span>
+                    <span>Schedule (Nightly builds).</span>
+                  </li>
+                  <li>
+                    <span class="conveyor-legend-swatch conveyor-legend-swatch--teal" aria-hidden="true"></span>
+                    <span>Signal (Sentry, Datadog, and so on).</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
@@ -1579,6 +1759,110 @@
   </div>
 
   <!-- ════════════════════════════════════════
+       WHY CONTEXT IS OVERLOOKED
+  ════════════════════════════════════════ -->
+  <section class="f-section">
+    <div class="container">
+      <div class="reveal">
+        <div class="f-kicker f-kicker--sentence">Context isn't an input to the factory. It's the foundation.</div>
+        <h2 class="f-h2">Why context keeps getting skipped</h2>
+      </div>
+
+      <div class="f-overlooked-grid">
+
+        <div class="f-overlooked-item reveal">
+          <div class="f-overlooked-visual">
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="26" cy="26" r="22" stroke="rgba(255,194,71,0.18)" stroke-width="1.5"/>
+              <path d="M18 26l6 6 10-12" stroke="rgba(255,194,71,0.55)" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M38 10 Q44 8 42 14" stroke="rgba(255,194,71,0.2)" stroke-width="1"
+                fill="none" stroke-linecap="round"/>
+              <text x="38" y="10" font-size="10" fill="rgba(255,194,71,0.2)">✓</text>
+            </svg>
+          </div>
+          <div class="f-overlooked-num">01</div>
+          <div class="f-overlooked-title">Success is invisible</div>
+          <div class="f-overlooked-desc">When retrieval works perfectly, reviewers see the PR — not the retrieval mechanism behind it. Precise context gets no credit, so it's never prioritised in evaluations or infrastructure investment.</div>
+        </div>
+
+        <div class="f-overlooked-item reveal reveal-d1">
+          <div class="f-overlooked-visual">
+            <svg width="72" height="52" viewBox="0 0 72 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4"  y="10" width="64" height="8" rx="2" fill="rgba(255,255,255,0.07)"/>
+              <rect x="4"  y="22" width="50" height="8" rx="2" fill="rgba(255,107,107,0.18)"/>
+              <rect x="4"  y="34" width="58" height="8" rx="2" fill="rgba(255,255,255,0.05)"/>
+              <circle cx="62" cy="26" r="6" fill="rgba(255,107,107,0.35)"/>
+              <text x="62" y="30" font-size="9" fill="rgba(255,107,107,0.9)" text-anchor="middle">!</text>
+            </svg>
+          </div>
+          <div class="f-overlooked-num">02</div>
+          <div class="f-overlooked-title">Failure is subtle</div>
+          <div class="f-overlooked-desc">Poor context doesn't cause spectacular failures. It produces plausibly correct code that silently diverges — wrong assumptions, stale interfaces, missed conventions.</div>
+        </div>
+
+        <div class="f-overlooked-item reveal reveal-d2">
+          <div class="f-overlooked-visual">
+            <svg width="88" height="52" viewBox="0 0 88 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4"  y="34" width="16" height="12" rx="2" fill="rgba(255,194,71,0.5)"/>
+              <rect x="24" y="24" width="16" height="22" rx="2" fill="rgba(255,194,71,0.35)"/>
+              <rect x="44" y="14" width="16" height="32" rx="2" fill="rgba(255,194,71,0.2)"/>
+              <rect x="64" y="8"  width="16" height="38" rx="2" fill="rgba(255,107,107,0.1)"/>
+              <line x1="0" y1="46" x2="88" y2="46" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+              <text x="72" y="6" font-size="7.5" fill="rgba(255,107,107,0.45)" text-anchor="middle">prod</text>
+              <text x="12" y="32" font-size="7" fill="rgba(255,194,71,0.5)" text-anchor="middle">eval</text>
+            </svg>
+          </div>
+          <div class="f-overlooked-num">03</div>
+          <div class="f-overlooked-title">Benchmarks don't test this</div>
+          <div class="f-overlooked-desc">Standard LLM evals test isolated, self-contained problems. No benchmark measures cross-repository dependency reasoning at scale.</div>
+          <a class="f-overlooked-link" href="https://medium.com/@steph.jarmak/i-couldnt-find-a-good-enough-benchmark-for-large-scale-software-development-so-i-built-one-d2cc5946e963" target="_blank" rel="noopener noreferrer">See why we created our own benchmarking</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       CONTEXT POISONING (added insight)
+  ════════════════════════════════════════ -->
+  <section class="f-section factory-poison">
+    <div class="container">
+      <div class="factory-poison-layout">
+
+        <div class="reveal">
+          <div class="f-kicker">The silent defect</div>
+          <h2 class="f-h2">Context poisoning</h2>
+          <p class="f-lead">Irrelevant context doesn't just dilute signal — it actively corrupts reasoning <span class="f-ref"><a href="#footnote-1" id="ref-footnote-1">[1]</a></span><span class="f-ref"><a href="#footnote-2" id="ref-footnote-2">[2]</a></span>. When 80% of the window is noise, even the correct information gets overridden by what surrounds it.</p>
+          <p class="f-lead" style="margin-top: 1rem;">Ranking matters as much as retrieval <span class="f-ref"><a href="#footnote-3" id="ref-footnote-3">[3]</a></span>. The right answer buried at position 8 of 10 results still produces the wrong code. An agent anchors to what it sees first.</p>
+          <p class="f-lead" style="margin-top: 1rem;">This is also a cost problem <span class="f-ref"><a href="#footnote-4" id="ref-footnote-4">[4]</a></span>. A saturated context window increases latency and token cost on every single agent invocation — at factory scale, this compounds into a meaningful infrastructure burden.</p>
+        </div>
+
+        <div class="reveal reveal-d1">
+          <div style="font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-soft); margin-bottom: 0.7rem;">Context window contents</div>
+          <div class="poison-window">
+            <span class="poison-line">./src/legacy/auth_old.ts:34 — class OldAuth extends...</span>
+            <span class="poison-line">./tests/auth.test.ts:112 — describe('AuthService', () =></span>
+            <span class="poison-line">./vendor/sdk/auth.d.ts:445 — export class AuthService</span>
+            <span class="poison-line">./docs/deprecated/auth-v2.md:1 — # Deprecated AuthService</span>
+            <span class="poison-line-signal">./auth/interfaces/AuthService.ts:12 — interface AuthService ←</span>
+            <span class="poison-line">./src/auth/helpers/utils.ts:45 — export const authHelper...</span>
+            <span class="poison-line">./migrations/2023-auth-refactor.sql:1 — ALTER TABLE sessions...</span>
+            <span class="poison-line">./scripts/seed/mock-auth.ts:67 — const mockAuthService = ...</span>
+            <span class="poison-line">./src/legacy/auth_old.ts:234 — }; // end OldAuth</span>
+            <span class="poison-line">./vendor/legacy/v1/auth.js:1203 — module.exports = Auth</span>
+          </div>
+          <div class="poison-caption">
+            1 signal. 9 noise.<br>
+            Agent anchors to position 1 and writes against the wrong interface.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
        THE CONTRAST
   ════════════════════════════════════════ -->
   <section class="f-section">
@@ -1586,7 +1870,7 @@
       <div class="reveal">
         <div class="f-kicker">The core problem</div>
         <h2 class="f-h2">Two approaches to retrieval</h2>
-        <p class="f-lead">How an agent assembles context before writing code determines everything that follows.</p>
+        <p class="f-lead f-lead-one-line">How an agent assembles context before writing code determines everything that follows.</p>
       </div>
 
       <div class="factory-contrast-grid">
@@ -1693,51 +1977,25 @@
                 <stop offset="55%"  stop-color="#ffc247" stop-opacity="0.35"/>
                 <stop offset="100%" stop-color="#ffc247" stop-opacity="0"/>
               </radialGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
             </defs>
 
             <!-- Subtle bg circle -->
             <circle cx="220" cy="220" r="210" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
 
-            <!-- Outer ring — Organisational (pink) -->
+            <!-- Outer ring — Organisational (dark orange) -->
             <ellipse cx="220" cy="220" rx="198" ry="96" fill="none"
-              stroke="#d62687" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="5 7"
+              stroke="#c2410c" stroke-width="1.45" stroke-opacity="0.78" stroke-dasharray="6 6" stroke-linecap="round"
               transform="rotate(-14, 220, 220)"/>
-            <!-- animated particle -->
-            <circle r="3.5" fill="#d62687" opacity="0.75" filter="url(#glow)">
-              <animateMotion dur="24s" repeatCount="indefinite">
-                <mpath href="#o-path"/>
-              </animateMotion>
-            </circle>
-            <path id="o-path" d="M220 220 m-198 0 a198 96 0 1 1 396 0 a198 96 0 1 1 -396 0"
-              fill="none" transform="rotate(-14,220,220)"/>
 
             <!-- Middle ring — Operational (teal) -->
             <ellipse cx="220" cy="220" rx="138" ry="66" fill="none"
-              stroke="#69d9d0" stroke-width="1.5" stroke-opacity="0.42" stroke-dasharray="7 5"
+              stroke="#69d9d0" stroke-width="1.65" stroke-opacity="0.62" stroke-dasharray="8 5" stroke-linecap="round"
               transform="rotate(-14, 220, 220)"/>
-            <circle r="4" fill="#69d9d0" opacity="0.8" filter="url(#glow)">
-              <animateMotion dur="13s" repeatCount="indefinite">
-                <mpath href="#m-path"/>
-              </animateMotion>
-            </circle>
-            <path id="m-path" d="M220 220 m-138 0 a138 66 0 1 1 276 0 a138 66 0 1 1 -276 0"
-              fill="none" transform="rotate(-14,220,220)"/>
 
             <!-- Inner ring — Codebase (gold) -->
             <ellipse cx="220" cy="220" rx="78" ry="38" fill="none"
               stroke="#ffc247" stroke-width="2" stroke-opacity="0.75"
               transform="rotate(-14, 220, 220)"/>
-            <circle r="4.5" fill="#ffc247" opacity="0.95" filter="url(#glow)">
-              <animateMotion dur="6s" repeatCount="indefinite">
-                <mpath href="#i-path"/>
-              </animateMotion>
-            </circle>
-            <path id="i-path" d="M220 220 m-78 0 a78 38 0 1 1 156 0 a78 38 0 1 1 -156 0"
-              fill="none" transform="rotate(-14,220,220)"/>
 
             <!-- Agent core -->
             <circle cx="220" cy="220" r="32" fill="url(#agentCore)" opacity="0.85"/>
@@ -1747,15 +2005,15 @@
               font-family="Poly Sans Mono, monospace" font-size="8.5"
               fill="rgba(255,194,71,0.55)" letter-spacing="0.18em">AGENT</text>
 
-            <!-- Ring labels -->
-            <text x="142" y="195" text-anchor="middle"
+            <!-- Ring labels: yellow #ffc247 = inner codebase ring; teal #69d9d0 = middle operational ring -->
+            <text x="98" y="178" text-anchor="middle"
               font-family="Poly Sans Mono, monospace" font-size="9" fill="#ffc247" fill-opacity="0.8" letter-spacing="0.09em">CODEBASE</text>
 
-            <text x="98" y="178" text-anchor="middle"
+            <text x="142" y="195" text-anchor="middle"
               font-family="Poly Sans Mono, monospace" font-size="8.5" fill="#69d9d0" fill-opacity="0.72" letter-spacing="0.07em">OPERATIONAL</text>
 
-            <text x="46" y="200" text-anchor="middle"
-              font-family="Poly Sans Mono, monospace" font-size="8" fill="#d62687" fill-opacity="0.68" letter-spacing="0.06em">ORGANISATIONAL</text>
+            <text x="46" y="200" text-anchor="middle" class="factory-org-ring-label"
+              font-family="Poly Sans Mono, monospace" font-size="8" letter-spacing="0.06em">ORGANISATIONAL</text>
           </svg>
         </div>
 
@@ -1763,17 +2021,18 @@
         <div>
           <div class="f-kicker reveal">Three layers of context</div>
           <h2 class="f-h2 reveal">The architecture every factory needs</h2>
-          <p class="f-lead reveal">Without all three, the agent operates on assumptions. Each layer is non-negotiable. Together, they make output that is genuinely production-safe.</p>
+          <p class="f-lead reveal">Without all three, the agent operates on assumptions.<br>
+Each layer is non-negotiable. Together they make output that is genuinely production safe.</p>
 
           <div style="margin-top: 2.8rem;">
 
             <div class="f-layer reveal">
               <div class="f-layer-name f-layer-name--cb">Codebase Context</div>
-              <div class="f-layer-desc">Symbol definitions, cross-repository dependencies, reference navigation, semantic diffs. Not file access — code intelligence. Without it, the agent doesn't know what already exists or how it's connected.</div>
+              <div class="f-layer-desc">Symbol definitions, cross-repository dependencies, reference navigation, Deepsearch. Not file access — code intelligence. Without it, the agent doesn't know what already exists or how it's connected.</div>
               <div class="f-layer-tags">
                 <span class="f-tag f-tag--cb">Symbol search</span>
                 <span class="f-tag f-tag--cb">Cross-repo refs</span>
-                <span class="f-tag f-tag--cb">Semantic diffs</span>
+                <span class="f-tag f-tag--cb">Deepsearch</span>
                 <span class="f-tag f-tag--cb">Ownership</span>
               </div>
             </div>
@@ -1791,10 +2050,10 @@
 
             <div class="f-layer reveal reveal-d2">
               <div class="f-layer-name f-layer-name--org">Organisational Context</div>
-              <div class="f-layer-desc">Team knowledge embedded in Jira tickets, Slack conversations, architectural decision records, and CODEOWNERS files. Without it, the agent ignores conventions your team has spent years establishing.</div>
+              <div class="f-layer-desc">Team knowledge embedded in JIRA, Slack conversations, architectural decision records, and CODEOWNERS files. Without it, the agent ignores conventions your team has spent years establishing.</div>
               <div class="f-layer-tags">
-                <span class="f-tag f-tag--org">Jira tickets</span>
-                <span class="f-tag f-tag--org">ADRs</span>
+                <span class="f-tag f-tag--org">JIRA</span>
+                <span class="f-tag f-tag--org">Documentation</span>
                 <span class="f-tag f-tag--org">CODEOWNERS</span>
                 <span class="f-tag f-tag--org">Slack threads</span>
               </div>
@@ -1848,7 +2107,7 @@
 
           <div class="arch-tools">
             <div class="arch-tool">
-              Jira<br>tickets
+              JIRA
             </div>
             <div class="arch-tool">
               Docs &amp;<br>runbooks
@@ -1880,109 +2139,6 @@
   </section>
 
   <!-- ════════════════════════════════════════
-       WHY CONTEXT IS OVERLOOKED
-  ════════════════════════════════════════ -->
-  <section class="f-section">
-    <div class="container">
-      <div class="reveal">
-        <div class="f-kicker">The blindspot</div>
-        <h2 class="f-h2">Why context keeps getting skipped</h2>
-      </div>
-
-      <div class="f-overlooked-grid">
-
-        <div class="f-overlooked-item reveal">
-          <div class="f-overlooked-visual">
-            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="26" cy="26" r="22" stroke="rgba(255,194,71,0.18)" stroke-width="1.5"/>
-              <path d="M18 26l6 6 10-12" stroke="rgba(255,194,71,0.55)" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M38 10 Q44 8 42 14" stroke="rgba(255,194,71,0.2)" stroke-width="1"
-                fill="none" stroke-linecap="round"/>
-              <text x="38" y="10" font-size="10" fill="rgba(255,194,71,0.2)">✓</text>
-            </svg>
-          </div>
-          <div class="f-overlooked-num">01</div>
-          <div class="f-overlooked-title">Success is invisible</div>
-          <div class="f-overlooked-desc">When retrieval works perfectly, reviewers see the PR — not the retrieval mechanism behind it. Precise context gets no credit, so it's never prioritised in evaluations or infrastructure investment.</div>
-        </div>
-
-        <div class="f-overlooked-item reveal reveal-d1">
-          <div class="f-overlooked-visual">
-            <svg width="72" height="52" viewBox="0 0 72 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4"  y="10" width="64" height="8" rx="2" fill="rgba(255,255,255,0.07)"/>
-              <rect x="4"  y="22" width="50" height="8" rx="2" fill="rgba(255,107,107,0.18)"/>
-              <rect x="4"  y="34" width="58" height="8" rx="2" fill="rgba(255,255,255,0.05)"/>
-              <circle cx="62" cy="26" r="6" fill="rgba(255,107,107,0.35)"/>
-              <text x="62" y="30" font-size="9" fill="rgba(255,107,107,0.9)" text-anchor="middle">!</text>
-            </svg>
-          </div>
-          <div class="f-overlooked-num">02</div>
-          <div class="f-overlooked-title">Failure is subtle</div>
-          <div class="f-overlooked-desc">Poor context doesn't cause spectacular failures. It produces plausibly correct code that silently diverges — wrong assumptions, stale interfaces, missed conventions. Context poisoning rarely surfaces in code review.</div>
-        </div>
-
-        <div class="f-overlooked-item reveal reveal-d2">
-          <div class="f-overlooked-visual">
-            <svg width="88" height="52" viewBox="0 0 88 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4"  y="34" width="16" height="12" rx="2" fill="rgba(255,194,71,0.5)"/>
-              <rect x="24" y="24" width="16" height="22" rx="2" fill="rgba(255,194,71,0.35)"/>
-              <rect x="44" y="14" width="16" height="32" rx="2" fill="rgba(255,194,71,0.2)"/>
-              <rect x="64" y="8"  width="16" height="38" rx="2" fill="rgba(255,107,107,0.1)"/>
-              <line x1="0" y1="46" x2="88" y2="46" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              <text x="72" y="6" font-size="7.5" fill="rgba(255,107,107,0.45)" text-anchor="middle">prod</text>
-              <text x="12" y="32" font-size="7" fill="rgba(255,194,71,0.5)" text-anchor="middle">eval</text>
-            </svg>
-          </div>
-          <div class="f-overlooked-num">03</div>
-          <div class="f-overlooked-title">Benchmarks don't test this</div>
-          <div class="f-overlooked-desc">Standard LLM evals test isolated, self-contained problems. No benchmark measures cross-repository dependency reasoning at scale. Teams ship with high eval scores and find the gap only after the agent is in production.</div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════════════════════════════
-       CONTEXT POISONING (added insight)
-  ════════════════════════════════════════ -->
-  <section class="f-section factory-poison">
-    <div class="container">
-      <div class="factory-poison-layout">
-
-        <div class="reveal">
-          <div class="f-kicker" style="color: rgba(237,46,32,0.75);">The silent defect</div>
-          <h2 class="f-h2">Context poisoning</h2>
-          <p class="f-lead">Irrelevant context doesn't just dilute signal — it actively corrupts reasoning. When 80% of the window is noise, even the correct information gets overridden by what surrounds it.</p>
-          <p class="f-lead" style="margin-top: 1rem;">Ranking matters as much as retrieval. The right answer buried at position 8 of 10 results still produces the wrong code. An agent anchors to what it sees first.</p>
-          <p class="f-lead" style="margin-top: 1rem;">This is also a cost problem. A saturated context window increases latency and token cost on every single agent invocation — at factory scale, this compounds into a meaningful infrastructure burden.</p>
-        </div>
-
-        <div class="reveal reveal-d1">
-          <div style="font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-soft); margin-bottom: 0.7rem;">Context window contents</div>
-          <div class="poison-window">
-            <span class="poison-line">./src/legacy/auth_old.ts:34 — class OldAuth extends...</span>
-            <span class="poison-line">./tests/auth.test.ts:112 — describe('AuthService', () =></span>
-            <span class="poison-line">./vendor/sdk/auth.d.ts:445 — export class AuthService</span>
-            <span class="poison-line">./docs/deprecated/auth-v2.md:1 — # Deprecated AuthService</span>
-            <span class="poison-line-signal">./auth/interfaces/AuthService.ts:12 — interface AuthService ←</span>
-            <span class="poison-line">./src/auth/helpers/utils.ts:45 — export const authHelper...</span>
-            <span class="poison-line">./migrations/2023-auth-refactor.sql:1 — ALTER TABLE sessions...</span>
-            <span class="poison-line">./scripts/seed/mock-auth.ts:67 — const mockAuthService = ...</span>
-            <span class="poison-line">./src/legacy/auth_old.ts:234 — }; // end OldAuth</span>
-            <span class="poison-line">./vendor/legacy/v1/auth.js:1203 — module.exports = Auth</span>
-          </div>
-          <div class="poison-caption">
-            1 signal. 9 noise.<br>
-            Agent anchors to position 1 and writes against the wrong interface.
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════════════════════════════
        CLOSE
   ════════════════════════════════════════ -->
   <section class="factory-close">
@@ -1990,102 +2146,63 @@
 
       <div class="factory-close-inner">
 
-      <!-- Inner / Outer Loop Animation -->
+      <!-- Inner / outer loop diagram (static — no orbiting animation) -->
       <div class="loops-visual reveal">
-        <svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg" aria-label="Inner loop and outer loop diagram">
-          <defs>
-            <filter id="glowTeal" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glowGold" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glowWhite" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-
-          <!-- ── Outer ellipse ── -->
+        <svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg" aria-label="Outer loop: software deployment. Inner loop: software build. Center: Sourcegraph Context.">
+          <!-- ── Outer ellipse (software deployment) ── -->
           <ellipse cx="280" cy="140" rx="215" ry="105"
-            stroke="rgba(255,194,71,0.18)" stroke-width="1" fill="none" stroke-dasharray="4 7"/>
+            stroke="rgba(255,194,71,0.48)" stroke-width="1.4" fill="none" stroke-dasharray="6 5" stroke-linecap="round"/>
 
-          <!-- ── Inner ellipse ── -->
+          <!-- ── Inner ellipse (software build) ── -->
           <ellipse cx="280" cy="140" rx="98" ry="48"
-            stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" stroke-dasharray="3 5"/>
+            stroke="rgba(255,255,255,0.42)" stroke-width="1.35" fill="none" stroke-dasharray="5 5" stroke-linecap="round"/>
 
-          <!-- ── Outer loop node markers ── -->
-          <!-- DEPLOY  θ=0°   (495,140) -->
+          <!-- ── Outer loop: security → test → deploy → code review → build → compliance (clockwise from right) ── -->
           <circle cx="495" cy="140" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="503" y="144" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.12em">DEPLOY</text>
-          <!-- OBSERVE θ=60°  (388,231) -->
+          <text x="503" y="144" font-family="monospace" font-size="7.5" fill="rgba(255,194,71,0.72)" letter-spacing="0.1em">SECURITY</text>
+
           <circle cx="388" cy="231" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="388" y="246" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.12em">OBSERVE</text>
-          <!-- TICKET  θ=120° (172,231) -->
+          <text x="388" y="246" text-anchor="middle" font-family="monospace" font-size="7.5" fill="rgba(255,194,71,0.72)" letter-spacing="0.1em">TEST</text>
+
           <circle cx="172" cy="231" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="172" y="246" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.12em">TICKET</text>
-          <!-- AGENT RUN θ=180° (65,140) -->
+          <text x="172" y="246" text-anchor="middle" font-family="monospace" font-size="7.5" fill="rgba(255,194,71,0.72)" letter-spacing="0.1em">DEPLOY</text>
+
           <circle cx="65" cy="140" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="57" y="136" text-anchor="end" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.1em">AGENT</text>
-          <text x="57" y="147" text-anchor="end" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.1em">RUN</text>
-          <!-- PR      θ=240° (172,49) -->
+          <text x="57" y="132" text-anchor="end" font-family="monospace" font-size="7" fill="rgba(255,194,71,0.72)" letter-spacing="0.08em">CODE</text>
+          <text x="57" y="142" text-anchor="end" font-family="monospace" font-size="7" fill="rgba(255,194,71,0.72)" letter-spacing="0.08em">REVIEW</text>
+
           <circle cx="172" cy="49" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="172" y="37" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.12em">PR</text>
-          <!-- REVIEW  θ=300° (388,49) -->
+          <text x="172" y="37" text-anchor="middle" font-family="monospace" font-size="7.5" fill="rgba(255,194,71,0.72)" letter-spacing="0.1em">BUILD</text>
+
           <circle cx="388" cy="49" r="3" fill="rgba(255,194,71,0.55)"/>
-          <text x="388" y="37" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,194,71,0.6)" letter-spacing="0.12em">REVIEW</text>
+          <text x="388" y="37" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(255,194,71,0.72)" letter-spacing="0.08em">COMPLIANCE</text>
 
-          <!-- ── Inner loop node markers ── -->
-          <!-- GENERATE θ=270° top (280,92) -->
+          <!-- ── Inner loop: code → test → debug → build (clockwise from top) ── -->
           <circle cx="280" cy="92" r="3" fill="rgba(255,255,255,0.45)"/>
-          <text x="280" y="79" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.4)" letter-spacing="0.1em">GENERATE</text>
-          <!-- TEST θ=0° right (378,140) -->
+          <text x="280" y="79" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.55)" letter-spacing="0.1em">CODE</text>
+
           <circle cx="378" cy="140" r="3" fill="rgba(255,255,255,0.45)"/>
-          <text x="386" y="144" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.4)" letter-spacing="0.1em">TEST</text>
-          <!-- ITERATE θ=90° bottom (280,188) -->
+          <text x="386" y="144" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.55)" letter-spacing="0.1em">TEST</text>
+
           <circle cx="280" cy="188" r="3" fill="rgba(255,255,255,0.45)"/>
-          <text x="280" y="202" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.4)" letter-spacing="0.1em">ITERATE</text>
-          <!-- CONTEXT θ=180° left (182,140) — highlighted -->
-          <circle class="loop-context-dot" cx="182" cy="140" r="5" fill="rgba(105,217,208,0.9)" filter="url(#glowTeal)"/>
-          <text x="172" y="135" text-anchor="end" font-family="monospace" font-size="8.5" fill="#69d9d0" letter-spacing="0.1em">CONTEXT</text>
-          <text x="172" y="147" text-anchor="end" font-family="monospace" font-size="6.5" fill="rgba(105,217,208,0.45)" letter-spacing="0.08em">SOURCEGRAPH MCP</text>
+          <text x="280" y="202" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.55)" letter-spacing="0.1em">DEBUG</text>
 
-          <!-- ── Agent center ── -->
-          <circle cx="280" cy="140" r="20" fill="rgba(255,194,71,0.04)" stroke="rgba(255,194,71,0.15)" stroke-width="1"/>
-          <text x="280" y="137" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,194,71,0.65)" letter-spacing="0.18em">AGENT</text>
-          <text x="280" y="149" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(255,255,255,0.22)" letter-spacing="0.12em">LLM</text>
+          <circle cx="182" cy="140" r="3" fill="rgba(255,255,255,0.45)"/>
+          <text x="172" y="144" text-anchor="end" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.55)" letter-spacing="0.1em">BUILD</text>
 
-          <!-- ── Animated dots: outer loop (gold, clockwise, 20s) ── -->
-          <circle r="5.5" fill="rgba(255,194,71,0.95)" filter="url(#glowGold)">
-            <animateMotion dur="20s" repeatCount="indefinite"
-              path="M 495,140 A 215,105 0 1 1 65,140 A 215,105 0 1 1 495,140"/>
-          </circle>
-          <circle r="3.5" fill="rgba(255,194,71,0.4)">
-            <animateMotion dur="20s" begin="-10s" repeatCount="indefinite"
-              path="M 495,140 A 215,105 0 1 1 65,140 A 215,105 0 1 1 495,140"/>
-          </circle>
-
-          <!-- ── Animated dots: inner loop (white, clockwise, 7s) ── -->
-          <circle r="4.5" fill="rgba(255,255,255,0.88)" filter="url(#glowWhite)">
-            <animateMotion dur="7s" repeatCount="indefinite"
-              path="M 182,140 A 98,48 0 1 0 378,140 A 98,48 0 1 0 182,140"/>
-          </circle>
-          <circle r="3" fill="rgba(255,255,255,0.32)">
-            <animateMotion dur="7s" begin="-3.5s" repeatCount="indefinite"
-              path="M 182,140 A 98,48 0 1 0 378,140 A 98,48 0 1 0 182,140"/>
-          </circle>
+          <!-- ── Center: Sourcegraph Context ── -->
+          <text x="280" y="137" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#69d9d0" letter-spacing="0.12em">SOURCEGRAPH</text>
+          <text x="280" y="154" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#69d9d0" letter-spacing="0.14em">CONTEXT</text>
         </svg>
 
         <div class="loops-legend">
           <div class="loops-legend-item">
             <span class="loops-dot loops-dot-outer"></span>
-            Outer loop · software delivery
+            Outer loop · software deployment
           </div>
           <div class="loops-legend-item">
             <span class="loops-dot loops-dot-inner"></span>
-            Inner loop · agent execution
+            Inner loop · software build
           </div>
         </div>
       </div>
@@ -2097,13 +2214,25 @@
           <span class="line-white">is the</span>
           <span class="line-dim">foundation.</span>
         </h2>
-        <p class="factory-close-sub">Build context retrieval before you build the agent loop. Then test it — explicitly. Ask: when a task requires understanding code outside the immediate diff, does the agent retrieve the right parts?</p>
+        <p class="factory-close-sub">Context must be a first class concern in Software Factory design — not scoped to a single stage, but present across the full inner and outer loop.</p>
         <a class="factory-cta" href="./mcp-guide.html">See how Sourcegraph MCP solves this →</a>
       </div>
 
       </div><!-- /.factory-close-inner -->
     </div>
   </section>
+
+  <footer class="f-footnotes-wrap" aria-label="References">
+    <div class="container">
+      <h2 class="f-footnotes-heading">References</h2>
+      <ol class="f-footnotes-list">
+        <li id="footnote-1">Hong, K., Troynikov, A., Huber, J. “Context Rot: How Increasing Input Tokens Impacts LLM Performance.” Chroma Technical Report, July 2025. <a href="https://www.trychroma.com/research/context-rot" target="_blank" rel="noopener noreferrer">https://www.trychroma.com/research/context-rot</a> <a href="#ref-footnote-1" class="f-footnotes-back" aria-label="Back to citation 1">↩</a></li>
+        <li id="footnote-2">Du, Y., Tian, M., et al. “Context Length Alone Hurts LLM Performance Despite Perfect Retrieval.” arXiv preprint arXiv:2510.05381, 2025. <a href="https://arxiv.org/html/2510.05381v1" target="_blank" rel="noopener noreferrer">https://arxiv.org/html/2510.05381v1</a> <a href="#ref-footnote-2" class="f-footnotes-back" aria-label="Back to citation 2">↩</a></li>
+        <li id="footnote-3">Liu, N. F., Lin, K., et al. “Lost in the Middle: How Language Models Use Long Contexts.” <i>Transactions of the Association for Computational Linguistics</i> (TACL), 2023. arXiv:2307.03172. <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.03172</a> <a href="#ref-footnote-3" class="f-footnotes-back" aria-label="Back to citation 3">↩</a></li>
+        <li id="footnote-4">Wall Street Journal. “AI Tokens and Productivity.” <i>The Wall Street Journal</i>, Tech. <a href="https://www.wsj.com/tech/ai/ai-tokens-productivity-d35c6bd8" target="_blank" rel="noopener noreferrer">https://www.wsj.com/tech/ai/ai-tokens-productivity-d35c6bd8</a> <a href="#ref-footnote-4" class="f-footnotes-back" aria-label="Back to citation 4">↩</a></li>
+      </ol>
+    </div>
+  </footer>
 
   <script src="./assets/site.js"></script>
   <script>
@@ -2122,6 +2251,23 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     revealEls.forEach(el => revealObserver.observe(el));
+
+    // Background agents conveyor: randomize block colours (two identical halves for seamless loop)
+    (function initConveyorMarquee() {
+      const root = document.getElementById('conveyor-marquee');
+      if (!root) return;
+      const kinds = ['yellow', 'orange', 'teal'];
+      const n = 24;
+      const seq = Array.from({ length: n }, () => kinds[Math.floor(Math.random() * kinds.length)]);
+      for (let i = seq.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = seq[i];
+        seq[i] = seq[j];
+        seq[j] = t;
+      }
+      const doubled = seq.concat(seq);
+      root.innerHTML = doubled.map((k) => '<span class="conveyor-item conveyor-item--' + k + '"></span>').join('');
+    })();
 
     // Context bar + grep animation (fires once when contrast section enters view)
     let barsAnimated = false;

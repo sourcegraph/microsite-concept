@@ -358,24 +358,34 @@ section[id] {
   }
 }
 
-.eyebrow {
+/* Section / hero kickers — match context-problem.html .f-kicker (mono, gold rule) */
+.f-kicker,
+.eyebrow,
+.mcp-guide-page .mcp-kicker {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
-  color: var(--gold);
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
   font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.65;
 }
 
-.eyebrow::before {
+.f-kicker::before,
+.eyebrow::before,
+.mcp-guide-page .mcp-kicker::before {
   content: "";
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
+  display: inline-block;
+  width: 1.6rem;
+  height: 1px;
   background: currentColor;
-  box-shadow: 0 0 18px currentColor;
+}
+
+.hero-copy > .f-kicker:first-child {
+  margin-bottom: 1.65rem;
 }
 
 .section-heading {
@@ -400,24 +410,26 @@ section[id] {
   margin-bottom: 1.8rem;
 }
 
+/* Section titles — match context-problem.html .f-h2 rhythm */
 .section-title {
   margin: 1rem 0 0.9rem;
   font-family: var(--display);
-  font-size: clamp(2.2rem, 5vw, 4.5rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
+  font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
 }
 
 .section-title-small {
-  font-size: clamp(1.8rem, 3.4vw, 2.75rem);
+  font-size: clamp(1.55rem, 2.85vw, 2.25rem);
 }
 
 .statement-title {
   font-family: var(--display);
-  font-size: clamp(1.18rem, 2vw, 1.72rem);
+  font-size: clamp(1.18rem, 1.9vw, 1.65rem);
   font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
 }
 
 .statement-emphasis {
@@ -534,6 +546,30 @@ section[id] {
 
 .text-link:hover svg {
   transform: translateX(4px);
+}
+
+/* Pill CTA (matches Software Factory / context-problem close section) */
+.factory-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.95rem 2.2rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 194, 71, 0.15), rgba(237, 46, 32, 0.08));
+  border: 1px solid rgba(255, 194, 71, 0.32);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color 0.22s, background 0.22s;
+}
+
+.factory-cta:hover {
+  border-color: rgba(255, 194, 71, 0.58);
+  background: linear-gradient(135deg, rgba(255, 194, 71, 0.22), rgba(237, 46, 32, 0.12));
 }
 
 .site-shell {
@@ -3766,25 +3802,6 @@ section[id] {
   font-size: 0.82rem;
 }
 
-/* ── Page Intro Searchlight ─────────────────────── */
-#pageIntro {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  pointer-events: none;
-  background: radial-gradient(
-    circle 240px at var(--bx, -20%) var(--by, 50%),
-    rgba(255, 165, 40, 0.04) 0%,
-    transparent 80px,
-    rgba(5, 5, 7, 0.98) 220px
-  );
-  transition: opacity 0.65s ease;
-}
-
-#pageIntro.is-done {
-  opacity: 0;
-}
-
 /* ── Scroll Cue ─────────────────────────────────── */
 .scroll-cue {
   display: inline-flex;
@@ -4154,7 +4171,6 @@ section[id] {
     radial-gradient(circle 15rem at var(--pointer-x) var(--pointer-y), rgba(255, 224, 163, 0.22), rgba(105, 217, 208, 0.1) 38%, transparent 72%);
   mix-blend-mode: screen;
   opacity: 0.9;
-  animation: haloPulse 4.2s ease-in-out infinite;
 }
 
 .signal-band {
@@ -4263,8 +4279,7 @@ section[id] {
 .protocol-stage,
 .loop-shell,
 .workbench,
-.use-case-stage,
-.cta-inner {
+.use-case-stage {
   position: relative;
   background:
     linear-gradient(180deg, rgba(18, 22, 26, 0.9), rgba(8, 10, 12, 0.92)),
@@ -4279,8 +4294,7 @@ section[id] {
 .protocol-stage::before,
 .loop-shell::before,
 .workbench::before,
-.use-case-stage::before,
-.cta-inner::before {
+.use-case-stage::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -5929,11 +5943,8 @@ section[id] {
 }
 
 .cta-inner {
-  padding: 3rem;
+  padding: 0;
   text-align: center;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255, 224, 163, 0.14), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
 }
 
 .reveal {
@@ -5985,17 +5996,6 @@ section[id] {
   0%,
   100% {
     opacity: 0.28;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes haloPulse {
-  0%,
-  100% {
-    opacity: 0.72;
   }
 
   50% {
@@ -8146,8 +8146,7 @@ section[id] {
   .contrast-column,
   .protocol-stage,
   .workbench-panel,
-  .use-case-spotlight,
-  .cta-inner {
+  .use-case-spotlight {
     padding: 1.4rem;
   }
 
