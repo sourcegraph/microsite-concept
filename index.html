@@ -65,7 +65,7 @@
         <div class="hero-copy reveal">
           <span class="f-kicker">Context for Agents, Workflows, and Automation</span>
           <p class="hero-statement" id="heroTitle">
-            <span data-typewriter="Without context, agents work in the dark."></span>
+            <span>Narrow context creates fast, confident, <span class="text-wrong">wrong</span> answers.</span>
           </p>
           <p class="hero-support">
             Agents, workflows, and automation tools break for the same reason: they act from a partial view. Give them the right context, and the failure rate drops fast.
@@ -100,10 +100,8 @@
       <div class="container">
         <div class="section-heading reveal">
           <span class="f-kicker">The Context Problem</span>
-          <h2 class="section-title section-title-small statement-title">Narrow context creates fast, confident, <span class="statement-emphasis">wrong</span> answers.</h2>
-          <p class="section-copy">
-            Same prompt. Two agents. Pick a use case and see the difference.
-          </p>
+          <h2 class="section-title section-title-small">Same prompt. Two agents.</h2>
+          <p class="section-copy">Pick a use case and see the difference.</p>
         </div>
 
         <div class="question-bar reveal">
@@ -126,56 +124,57 @@
         </div>
 
         <div class="contrast-stage reveal" id="problemDemo">
-          <article class="contrast-column">
-            <p class="contrast-label">AI without context</p>
-
-            <div class="console-view">
-              <div class="console-query">
-                <span class="prompt">❯</span>
-                <span id="withoutQuery">A function in microsoft/vscode implements a three-way merge algorithm for Settings Sync that reconciles local, remote, and base versions, producing four sets: added, removed, updated, and conflicts. Identify the function and the file it lives in.</span>
-              </div>
-              <div class="console-response">
-                <p id="withoutResponse"></p>
-              </div>
-              <div class="confidence">
-                <div class="confidence-meta">
-                  <span>confidence meter</span>
-                  <strong id="withoutConfidence">0%</strong>
-                </div>
-                <div class="confidence-bar">
-                  <div class="confidence-fill blind" id="withoutConfidenceFill"></div>
-                </div>
-              </div>
+          <div class="problem-prompt">
+            <div class="console-query problem-prompt-query">
+              <span class="prompt prompt-shared" aria-hidden="true">❯</span>
+              <span id="problemQuery">A function in microsoft/vscode implements a three-way merge algorithm for Settings Sync that reconciles local, remote, and base versions, producing four sets: added, removed, updated, and conflicts. Identify the function and the file it lives in.</span>
             </div>
-          </article>
-
-          <div class="contrast-divider" aria-hidden="true">
-            <span>Context arrives</span>
           </div>
 
-          <article class="contrast-column contrast-column-lit">
-            <p class="contrast-label">AI with retrieved context from Sourcegraph</p>
+          <div class="problem-compare-grid">
+            <article class="contrast-column">
+              <p class="contrast-label">AI without context</p>
 
-            <div class="console-view console-view-lit">
-              <div class="console-query">
-                <span class="prompt prompt-good">❯</span>
-                <span id="withQuery">A function in microsoft/vscode implements a three-way merge algorithm for Settings Sync that reconciles local, remote, and base versions, producing four sets: added, removed, updated, and conflicts. Identify the function and the file it lives in.</span>
-              </div>
-              <div class="console-response">
-                <div class="log-stream" id="contextLogs"></div>
-                <p id="withResponse"></p>
-              </div>
-              <div class="confidence">
-                <div class="confidence-meta">
-                  <span>confidence meter</span>
-                  <strong id="withConfidence">0%</strong>
+              <div class="console-view">
+                <div class="console-response">
+                  <p id="withoutResponse"></p>
                 </div>
-                <div class="confidence-bar">
-                  <div class="confidence-fill lit" id="withConfidenceFill"></div>
+                <div class="confidence">
+                  <div class="confidence-meta">
+                    <span>confidence meter</span>
+                    <strong id="withoutConfidence">0%</strong>
+                  </div>
+                  <div class="confidence-bar">
+                    <div class="confidence-fill blind" id="withoutConfidenceFill"></div>
+                  </div>
                 </div>
               </div>
+            </article>
+
+            <div class="contrast-divider" aria-hidden="true">
+              <span>Context arrives</span>
             </div>
-          </article>
+
+            <article class="contrast-column contrast-column-lit">
+              <p class="contrast-label">AI with retrieved context from Sourcegraph</p>
+
+              <div class="console-view console-view-lit">
+                <div class="console-response">
+                  <div class="log-stream" id="contextLogs"></div>
+                  <p id="withResponse"></p>
+                </div>
+                <div class="confidence">
+                  <div class="confidence-meta">
+                    <span>confidence meter</span>
+                    <strong id="withConfidence">0%</strong>
+                  </div>
+                  <div class="confidence-bar">
+                    <div class="confidence-fill lit" id="withConfidenceFill"></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
 
       </div>
@@ -227,7 +226,7 @@
           <div class="section-heading reveal">
             <h2 class="section-title section-title-small statement-title">The agentic loop with Sourcegraph</h2>
             <p class="section-copy">
-              Sourcegraph adds retrieval between discovery and reasoning so the agent can act from grounded codebase context.
+              Agents retrieve the correct context before reasoning begins: exact files, definitions, references, and history on demand, so the agent acts on full context, not just a partial picture.
             </p>
           </div>
 
@@ -245,9 +244,6 @@
                   <div class="loop-flow-connector loop-flow-connector-lit" aria-hidden="true"></div>
                   <div class="loop-flow-node">Act</div>
                 </div>
-                <p class="loop-advantage-copy">
-                  Agents retrieve the correct context before reasoning begins: exact files, definitions, references, and history on demand, so the agent acts on full context, not just a partial picture.
-                </p>
               </div>
             </div>
           </div>
@@ -325,9 +321,6 @@
       <div class="container">
         <div class="section-heading reveal">
           <h2 class="section-title statement-title">How does Sourcegraph MCP work?</h2>
-          <p class="section-copy">
-            Model Context Protocol (MCP) gives agents a standard way to retrieve information beyond their context window: search indexes, code intelligence, and other retrieval systems on demand.
-          </p>
         </div>
 
         <div class="mcp-scene reveal" aria-label="Agent to Sourcegraph MCP flow">
@@ -383,7 +376,6 @@
               <h3 class="mcp-scene-title mcp-context-title" id="mcpContextTitle">The LLM has precise context</h3>
               <div class="mcp-context-shell">
                 <div class="mcp-context-bar">
-                  <span>Context Window</span>
                   <span>Grounded Evidence</span>
                 </div>
                 <div class="mcp-context-items" aria-hidden="true">

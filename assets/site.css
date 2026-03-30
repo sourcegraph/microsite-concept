@@ -415,7 +415,7 @@ section[id] {
   margin: 1rem 0 0.9rem;
   font-family: var(--display);
   font-size: clamp(1.7rem, 3.2vw, 2.6rem);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.045em;
 }
@@ -427,7 +427,7 @@ section[id] {
 .statement-title {
   font-family: var(--display);
   font-size: clamp(1.18rem, 1.9vw, 1.65rem);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.045em;
 }
@@ -3764,6 +3764,10 @@ section[id] {
   letter-spacing: -0.04em;
 }
 
+.hero-statement .text-wrong {
+  color: #e53935;
+}
+
 .hero-statement-wide {
   max-width: none;
 }
@@ -4310,9 +4314,31 @@ section[id] {
 }
 
 .contrast-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.problem-prompt {
+  padding: 2.2rem 2.2rem 1.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.problem-prompt-query {
+  max-width: 100%;
+}
+
+.problem-prompt .prompt-shared {
+  color: rgba(255, 194, 71, 0.85);
+  flex-shrink: 0;
+}
+
+.problem-compare-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: stretch;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .problem-footer {
@@ -4407,9 +4433,9 @@ section[id] {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  margin-bottom: 1.8rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .console-view-lit {
@@ -4420,8 +4446,10 @@ section[id] {
   display: flex;
   gap: 0.7rem;
   align-items: flex-start;
-  font-family: var(--mono);
-  font-size: 0.9rem;
+  font-family: var(--body);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
 }
 
 .prompt {
@@ -4435,7 +4463,7 @@ section[id] {
 .console-response {
   flex: 1 1 auto;
   min-height: 13rem;
-  margin-top: 1rem;
+  margin-top: 0;
   padding-left: 1rem;
   border-left: 2px solid rgba(255, 255, 255, 0.08);
 }
@@ -4443,19 +4471,25 @@ section[id] {
 .console-response p {
   margin: 0;
   color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 0.86rem;
-  line-height: 1.75;
+  font-family: var(--body);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
 .console-response .bad-file {
+  font-family: var(--mono);
+  font-size: 0.9em;
   color: #ff9a80;
   text-decoration: line-through;
 }
 
 .console-response .good-file {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  font-weight: 600;
   color: var(--ice);
 }
 
@@ -4490,8 +4524,9 @@ section[id] {
   justify-content: space-between;
   gap: 1rem;
   color: var(--text-soft);
-  font-family: var(--mono);
-  font-size: 0.74rem;
+  font-family: var(--body);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
   margin-bottom: 0.6rem;
 }
 
@@ -4620,6 +4655,7 @@ section[id] {
   margin: 0 0 0.8rem;
   font-family: var(--display);
   font-size: clamp(1.18rem, 2vw, 1.72rem);
+  font-weight: 700;
   line-height: 1.02;
   letter-spacing: -0.04em;
 }
@@ -4745,6 +4781,7 @@ section[id] {
   margin: 0;
   font-family: var(--display);
   font-size: clamp(1.1rem, 1.9vw, 1.55rem);
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.04em;
 }
@@ -5179,6 +5216,7 @@ section[id] {
   margin: 1rem 0 0.7rem;
   font-family: var(--display);
   font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 700;
   line-height: 0.98;
   letter-spacing: -0.05em;
 }
@@ -5277,6 +5315,7 @@ section[id] {
   margin: 0.65rem 0 0.5rem;
   font-family: var(--display);
   font-size: 1.35rem;
+  font-weight: 700;
   line-height: 1.04;
   letter-spacing: -0.03em;
 }
@@ -7319,7 +7358,7 @@ section[id] {
     gap: 1.3rem;
   }
 
-  .contrast-stage {
+  .problem-compare-grid {
     grid-template-columns: 1fr;
   }
 
@@ -8143,6 +8182,7 @@ section[id] {
     grid-template-columns: 1fr;
   }
 
+  .problem-prompt,
   .contrast-column,
   .protocol-stage,
   .workbench-panel,

@@ -591,18 +591,17 @@
 
     const pills = qsa("[data-question-index]");
     const leftConsole = qs(".contrast-column .console-view", stage);
-    const leftQuery = qs("#withoutQuery");
+    const problemQuery = qs("#problemQuery");
     const leftResponse = qs("#withoutResponse");
     const leftValue = qs("#withoutConfidence");
     const leftFill = qs("#withoutConfidenceFill");
     const rightConsole = qs(".contrast-column-lit .console-view", stage);
-    const rightQuery = qs("#withQuery");
     const rightResponse = qs("#withResponse");
     const rightValue = qs("#withConfidence");
     const rightFill = qs("#withConfidenceFill");
     const logsContainer = qs("#contextLogs");
 
-    if (!pills.length || !leftConsole || !leftQuery || !leftResponse || !leftValue || !leftFill || !rightConsole || !rightQuery || !rightResponse || !rightValue || !rightFill || !logsContainer) {
+    if (!pills.length || !leftConsole || !problemQuery || !leftResponse || !leftValue || !leftFill || !rightConsole || !rightResponse || !rightValue || !rightFill || !logsContainer) {
       return;
     }
 
@@ -622,12 +621,10 @@
       clone.style.height = "auto";
 
       if (side === "left") {
-        qs("#withoutQuery", clone).textContent = fillScenario.query;
         qs("#withoutResponse", clone).innerHTML = renderSegmentsHtml(fillScenario.without.segments);
         qs("#withoutConfidence", clone).textContent = `${fillScenario.without.confidence}%`;
         qs("#withoutConfidenceFill", clone).style.width = `${fillScenario.without.confidence}%`;
       } else {
-        qs("#withQuery", clone).textContent = fillScenario.query;
         qs("#withResponse", clone).innerHTML = renderSegmentsHtml(fillScenario.with.segments);
         qs("#withConfidence", clone).textContent = `${fillScenario.with.confidence}%`;
         qs("#withConfidenceFill", clone).style.width = `${fillScenario.with.confidence}%`;
@@ -679,8 +676,7 @@
       const scenario = demoScenarios[index];
       if (!scenario) return;
 
-      leftQuery.textContent = scenario.query;
-      rightQuery.textContent = scenario.query;
+      problemQuery.textContent = scenario.query;
       leftResponse.innerHTML = "";
       rightResponse.innerHTML = "";
       logsContainer.innerHTML = "";

@@ -40,6 +40,7 @@
       margin-bottom: 0.9rem;
       font-family: var(--mono);
       font-size: 0.72rem;
+      font-weight: 600;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--f-gold);
@@ -64,7 +65,7 @@
       margin: 0 0 0.5rem;
       font-family: var(--display);
       font-size: clamp(1.7rem, 3.2vw, 2.6rem);
-      font-weight: 500;
+      font-weight: 700;
       line-height: 1.08;
       letter-spacing: -0.045em;
       max-width: 28ch;
@@ -121,7 +122,7 @@
       margin: 0 0 1rem;
       font-family: var(--mono);
       font-size: 0.68rem;
-      font-weight: 500;
+      font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--text-soft);
@@ -1075,7 +1076,7 @@
     .f-layer-name {
       font-family: var(--display);
       font-size: 1.08rem;
-      font-weight: 500;
+      font-weight: 700;
       letter-spacing: -0.03em;
       margin-bottom: 0.35rem;
     }
@@ -1137,7 +1138,7 @@
     .f-overlooked-title {
       font-family: var(--display);
       font-size: 1.15rem;
-      font-weight: 500;
+      font-weight: 700;
       letter-spacing: -0.03em;
       margin-bottom: 0.5rem;
     }
@@ -1218,7 +1219,7 @@
       max-width: 24ch;
       font-family: var(--display);
       font-size: clamp(1.9rem, 4vw, 3.4rem);
-      font-weight: 500;
+      font-weight: 700;
       line-height: 1.12;
       letter-spacing: -0.05em;
     }
@@ -1270,7 +1271,7 @@
       margin: 0 0 1.4rem;
       font-family: var(--display);
       font-size: clamp(1.5rem, 2.8vw, 2.2rem);
-      font-weight: 500;
+      font-weight: 700;
       line-height: 1.1;
       letter-spacing: -0.04em;
     }
@@ -2124,7 +2125,7 @@ Each layer is non-negotiable. Together they make output that is genuinely produc
           <p class="stripe-arch-body">Stripe didn't try to solve context inside the agent loop. They solved it before the loop starts.</p>
           <p class="stripe-arch-body">Toolshed, their central MCP server, hosts 500 tools covering internal systems, SaaS platforms, docs, tickets, and code intelligence via Sourcegraph. Before any LLM call fires, a deterministic orchestrator scans the task for links and references, pre-fetches relevant context, and curates a focused subset of roughly 15 tools. Tickets fetched. Docs retrieved. Code searched.</p>
           <p class="stripe-arch-body">By the time the model wakes up, the context window is hydrated and the toolset is scoped. It's not exploring. It's not deciding what to call. It's just doing the work.</p>
-          <p class="stripe-arch-body">Front-load the intelligence. Assemble context deterministically. Hand off to the model to execute.</p>
+          <p class="stripe-arch-body">Front load the intelligence. Assemble context deterministically. Hand off to the model to execute.</p>
           <div class="stripe-arch-sg">
             <div class="stripe-arch-sg-label">Sourcegraph's role in that architecture</div>
             <p>Semantic code intelligence not available through file access alone — which services call this method, where an interface is implemented across repositories, whether a pattern has been deprecated. Grep returns strings. Sourcegraph returns semantically ranked results with cross-repo scope, using the same code intelligence graph that powers the developer-facing search product.</p>
